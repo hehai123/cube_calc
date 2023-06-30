@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import {
   Paper,
@@ -28,6 +28,7 @@ import {
   Add,
   DoubleArrow,
   HelpOutline,
+  FastForward,
 } from "@material-ui/icons";
 import {
   hatLines,
@@ -54,6 +55,31 @@ import {
   secondarySubLines,
   emblemSubLines,
 } from "./subLines";
+import {
+  legendHatLines,
+  legendTopLines,
+  legendBottomLines,
+  legendShoeLines,
+  legendGloveLines,
+  legendCapeShoulderBeltLines,
+  legendAccessoryLines,
+  legendHeartLines,
+  legendWeaponLines,
+  legendSecondaryLines,
+  legendEmblemLines,
+} from "./legendLines";
+import {
+  uniqueHatLines,
+  uniqueTopLines,
+  uniquebottomShoeLines,
+  uniqueGloveLines,
+  uniqueCapeShoulderBeltLines,
+  uniqueAccessoryLines,
+  // uniqueHeartLines,
+  uniqueWeaponLines,
+  uniqueSecondaryLines,
+  uniqueEmblemLines,
+} from "./uniqueLines";
 
 import { useHistory } from "react-router-dom";
 
@@ -203,9 +229,27 @@ export default function PotentialTable() {
   const [curEqualityPercentage, setCurEqualityPercentage] = React.useState(0);
   const [curHexaPercentage, setCurHexaPercentage] = React.useState(0);
 
+  const [legendLineOptions, setLegendLineOptions] = useState([]);
+  // const [uniqueLineOptions, setUniqueLineOptions] = useState([]);
+  const [redSecondLineOptions, setRedSecondLineOptions] = useState([]);
+  const [redThirdLineOptions, setRedThirdLineOptions] = useState([]);
+  const [blackSecondLineOptions, setBlackSecondLineOptions] = useState([]);
+  const [blackThirdLineOptions, setBlackThirdLineOptions] = useState([]);
+
+  // Final probability calculated
+  const [hexaProbability, setHexaProbability] = useState(0);
+  const [blackProbability, setBlackProbability] = useState(0);
+  const [redProbability, setRedProbability] = useState(0);
+  const [equalityProbability, setEqualityProbability] = useState(0);
+
+  const [hexaCubeNumber, setHexaCubeNumber] = useState(0);
+  const [blackCubeNumber, setBlackCubeNumber] = useState(0);
+  const [redCubeNumber, setRedCubeNumber] = useState(0);
+  const [equalityCubeNumber, setEqualityCubeNumber] = useState(0);
+
   //table
   const [rows, setRows] = React.useState([]);
-  const [curRowId, setCurRowId] = React.useState([]);
+  // const [curRowId, setCurRowId] = React.useState(0);
 
   //readMe
   const [helpOpen, setHelpOpen] = React.useState(false);
@@ -225,37 +269,57 @@ export default function PotentialTable() {
   function updateLineOptions(title) {
     var curLines = [];
     var curSubLines = [];
+    var legendLines = [];
+    var uniqueLines = [];
+    const red2 = 10; // 1 in 10 chance of being a legendary line for red cube 2nd line
+    const red3 = 100; // 1 in 100 chance of being a legendary line for red cube 3rd line
+    const black2 = 5;
+    const black3 = 20;
 
     switch (title) {
       case "Hat":
         curLines = hatLines;
         curSubLines = hatSubLines;
+        legendLines = legendHatLines;
+        uniqueLines = uniqueHatLines;
         break;
       case "Top":
         curLines = topLines;
         curSubLines = topSubLines;
+        legendLines = legendTopLines;
+        uniqueLines = uniqueTopLines;
         break;
       case "Bottom":
         curLines = bottomLines;
         curSubLines = bottomShoeSubLines;
+        legendLines = legendBottomLines;
+        uniqueLines = uniquebottomShoeLines;
         break;
       case "Overall":
         curLines = topLines;
         curSubLines = topSubLines;
+        legendLines = legendTopLines;
+        uniqueLines = uniqueTopLines;
         break;
       case "Shoe":
         curLines = shoeLines;
         curSubLines = bottomShoeSubLines;
+        legendLines = legendShoeLines;
+        uniqueLines = uniquebottomShoeLines;
         break;
       case "Glove":
         curLines = gloveLines;
         curSubLines = gloveSubLines;
+        legendLines = legendGloveLines;
+        uniqueLines = uniqueGloveLines;
         break;
       case "Cape":
       case "Shoulder":
       case "Belt":
         curLines = capeShoulderBeltLines;
         curSubLines = capeShoulderBeltSubLines;
+        legendLines = legendCapeShoulderBeltLines;
+        uniqueLines = uniqueCapeShoulderBeltLines;
         break;
       case "Ring":
       case "Earring":
@@ -264,25 +328,37 @@ export default function PotentialTable() {
       case "Eye":
         curLines = accessoryLines;
         curSubLines = accessorySubLines;
+        legendLines = legendAccessoryLines;
+        uniqueLines = uniqueAccessoryLines;
         break;
       case "Heart":
         curLines = heartLines;
-        curSubLines = heartSubLines;
+        // curSubLines = heartSubLines;
+        curSubLines = accessorySubLines;
+        legendLines = legendHeartLines;
+        uniqueLines = uniqueAccessoryLines;
         break;
       case "Weapon":
         curLines = weaponLines;
         curSubLines = weaponSubLines;
+        legendLines = legendWeaponLines;
+        uniqueLines = uniqueWeaponLines;
         break;
       case "Secondary":
         curLines = secondaryLines;
         curSubLines = secondarySubLines;
+        legendLines = legendSecondaryLines;
+        uniqueLines = uniqueSecondaryLines;
         break;
       case "Emblem":
         curLines = emblemLines;
         curSubLines = emblemSubLines;
+        legendLines = legendEmblemLines;
+        uniqueLines = uniqueEmblemLines;
         break;
       default:
         curLines = hatLines;
+        legendLines = legendHatLines;
         break;
     }
 
@@ -339,6 +415,95 @@ export default function PotentialTable() {
         };
       })
     );
+
+    const totalLegendWeight = legendLines.reduce(
+      (total, item) => total + item.weight,
+      0
+    );
+    setLegendLineOptions(
+      legendLines.map((option) => {
+        const stat = option.stat;
+        const weight = option.weight;
+        const type = option.type;
+        const value = option.value;
+
+        return {
+          stat: stat,
+          type: type,
+          value: value,
+          weight: weight,
+          totalWeight: totalLegendWeight,
+          // ...option,
+        };
+      })
+    );
+
+    const totalUniqueWeight = uniqueLines.reduce(
+      (total, item) => total + item.weight,
+      0
+    );
+
+    const black2LegendLines = legendLines.map((option) => ({
+      ...option,
+      totalWeight: totalLegendWeight * black2,
+    }));
+    const black2UniqueLines = uniqueLines.map((option) => ({
+      ...option,
+      weight: option.weight * (black2 - 1),
+      totalWeight: totalUniqueWeight * black2,
+    }));
+
+    const black3LegendLines = legendLines.map((option) => ({
+      ...option,
+      totalWeight: totalLegendWeight * black3,
+    }));
+    const black3UniqueLines = uniqueLines.map((option) => ({
+      ...option,
+      weight: option.weight * (black3 - 1),
+      totalWeight: totalUniqueWeight * black3,
+    }));
+
+    const red2LegendLines = legendLines.map((option) => ({
+      ...option,
+      totalWeight: totalLegendWeight * red2,
+    }));
+    const red2UniqueLines = uniqueLines.map((option) => ({
+      ...option,
+      weight: option.weight * (red2 - 1),
+      totalWeight: totalUniqueWeight * red2,
+    }));
+
+    const red3LegendLines = legendLines.map((option) => ({
+      ...option,
+      totalWeight: totalLegendWeight * red3,
+    }));
+    const red3UniqueLines = uniqueLines.map((option) => ({
+      ...option,
+      weight: option.weight * (red3 - 1),
+      totalWeight: totalUniqueWeight * red3,
+    }));
+
+    setBlackSecondLineOptions(black2LegendLines.concat(black2UniqueLines));
+    setBlackThirdLineOptions(black3LegendLines.concat(black3UniqueLines));
+    setRedSecondLineOptions(red2LegendLines.concat(red2UniqueLines));
+    setRedThirdLineOptions(red3LegendLines.concat(red3UniqueLines));
+    // setUniqueLineOptions(
+    //   legendLines.concat(uniqueLines).map((option) => {
+    //     const stat = option.stat;
+    //     const weight = option.weight;
+    //     const type = option.type;
+    //     const value = option.value;
+
+    //     return {
+    //       stat: stat,
+    //       type: type,
+    //       value: value,
+    //       weight: weight,
+    //       totalWeight: totalUniqueWeight,
+    //       // ...option,
+    //     };
+    //   })
+    // );
 
     let types = curLines.concat(curSubLines).map((option) => {
       const type = option.type;
@@ -406,6 +571,532 @@ export default function PotentialTable() {
     return perm1 * 6 + perm2 + perm3 * 3;
   }
 
+  //============================================================= XD ================================================================
+  // Handles probability together with 4th, 5th and 6th line
+  const hexaNext3LinesProbCalc = (
+    x1,
+    type1,
+    x2,
+    type2,
+    checkSecondCriterion,
+    acceptAllStat1,
+    acceptAllStat2,
+    data,
+    line1,
+    line2,
+    line3
+  ) => {
+    let totalProbability = 0;
+    let selectedLine = [false, false, false];
+    let tempLines = [];
+    const probability =
+      (line1.weight * line2.weight * line3.weight) /
+      (line1.totalWeight * line2.totalWeight * line3.totalWeight);
+
+    if (line1.type === type1 || (line1.type === "AS" && acceptAllStat1)) {
+      tempLines.push({ value: line1.value, type: line1.type });
+      selectedLine[0] = true;
+    }
+    if (line2.type === type1 || (line2.type === "AS" && acceptAllStat1)) {
+      tempLines.push({ value: line2.value, type: line2.type });
+      selectedLine[1] = true;
+    }
+    if (line3.type === type1 || (line3.type === "AS" && acceptAllStat1)) {
+      tempLines.push({ value: line3.value, type: line3.type });
+      selectedLine[2] = true;
+    }
+
+    if (checkSecondCriterion) {
+      if (line1.type === type2 || (line1.type === "AS" && acceptAllStat2)) {
+        if (!selectedLine[0]) {
+          tempLines.push({ value: line1.value, type: line1.type });
+          selectedLine[0] = true;
+        }
+      }
+      if (line2.type === type2 || (line2.type === "AS" && acceptAllStat2)) {
+        if (!selectedLine[1]) {
+          tempLines.push({ value: line2.value, type: line2.type });
+          selectedLine[1] = true;
+        }
+      }
+      if (line3.type === type2 || (line3.type === "AS" && acceptAllStat2)) {
+        if (!selectedLine[2]) {
+          tempLines.push({ value: line3.value, type: line3.type });
+          selectedLine[2] = true;
+        }
+      }
+    }
+
+    for (const [key, value] of Object.entries(data)) {
+      // let lineComponents = key.split(", ");
+      // let lines = lineComponents.map((component) => {
+      //   let [value, type] = component.split(" ");
+      //   return { value: parseInt(value), type: type };
+      // });
+      const lineComponents = key.split(", ");
+      let lines = lineComponents.map((component) => {
+        let [value, ...typeParts] = component.split(" ");
+        let type = typeParts.join(" ").trim();
+        return { value: parseInt(value), type: type };
+      });
+
+      lines = lines.concat(tempLines);
+      let bossLinesCount = 0;
+      for (const line of lines) {
+        if (line.type === "BOSS") bossLinesCount += 1;
+      }
+      if (bossLinesCount > 2) continue;
+
+      lineSorter(lines);
+
+      let sum = 0;
+      let sum2 = 0;
+      let linesSelected = 0;
+      let selectableLines = [];
+
+      for (let i = 0; i < lines.length; i++) {
+        if (linesSelected >= 3 || sum >= x1) {
+          selectableLines.push(i);
+          continue;
+        }
+
+        const line = lines[i];
+        if (line.type === type1 || (line.type === "AS" && acceptAllStat1)) {
+          sum += line.value;
+          linesSelected += 1;
+          if (line.type === type2 || (line.type === "AS" && acceptAllStat2)) {
+            sum2 += line.value;
+          }
+        } else {
+          selectableLines.push(i);
+        }
+      }
+
+      if (!checkSecondCriterion) {
+        if (linesSelected <= 3 && sum >= x1) {
+          totalProbability += value * probability;
+        }
+      } else {
+        if (linesSelected === 3) {
+          if (sum >= x1 && sum2 >= x2) {
+            totalProbability += value * probability;
+          }
+        } else {
+          for (const index of selectableLines) {
+            const line = lines[index];
+
+            if (line.type === type2 || (line.type === "AS" && acceptAllStat2)) {
+              sum2 += line.value;
+              linesSelected += 1;
+              if (
+                line.type === type1 ||
+                (line.type === "AS" && acceptAllStat1)
+              ) {
+                sum += line.value;
+              }
+            }
+
+            if (linesSelected >= 3) break;
+          }
+
+          if (sum >= x1 && sum2 >= x2) {
+            totalProbability += value * probability;
+          }
+        }
+      }
+    }
+
+    return totalProbability;
+  };
+
+  // Sort the array of lines by descedning value and type
+  const lineSorter = (lines) => {
+    lines.sort((a, b) => {
+      if (b.value !== a.value) {
+        return b.value - a.value; // Sort by descending value
+      } else {
+        return a.type.localeCompare(b.type); // Sort alphabetically by type
+      }
+    });
+  };
+
+  // Sort key by descending value and by type
+  const keySorter = (keyFormat) => {
+    keyFormat.sort(function (a, b) {
+      // Extract the numeric values and the string parts from the strings
+      let valueA = parseFloat(a);
+      let valueB = parseFloat(b);
+      let stringA = a.split(" ")[1];
+      let stringB = b.split(" ")[1];
+
+      // Compare the values in descending order
+      if (valueA > valueB) {
+        return -1;
+      } else if (valueA < valueB) {
+        return 1;
+      } else {
+        // If the values are equal, compare the string parts
+        if (stringA > stringB) {
+          return -1;
+        } else if (stringA < stringB) {
+          return 1;
+        } else {
+          return 0;
+        }
+      }
+    });
+
+    return keyFormat;
+  };
+
+  // Calculates hexa probability, also calculate red cube probability
+  const hexaAndRedProbCalc = (x1, type1, x2, type2) => {
+    let acceptAllStat1 = false;
+    let acceptAllStat2 = false;
+    let totalHexaProbability = 0;
+    let checkSecondCriterion = false;
+    let data = {};
+
+    if (
+      type1 === "STR" ||
+      type1 === "DEX" ||
+      type1 === "INT" ||
+      type1 === "LUK"
+    ) {
+      acceptAllStat1 = true;
+    }
+    if (
+      type2 === "STR" ||
+      type2 === "DEX" ||
+      type2 === "INT" ||
+      type2 === "LUK"
+    ) {
+      acceptAllStat2 = true;
+    }
+
+    if (x2 !== "" && type2 !== "") {
+      checkSecondCriterion = true;
+    } else {
+      checkSecondCriterion = false;
+    }
+
+    for (const line1 of legendLineOptions) {
+      for (const line2 of redSecondLineOptions) {
+        for (const line3 of redThirdLineOptions) {
+          if (
+            line1.type === "BOSS" &&
+            line2.type === "BOSS" &&
+            line3.type === "BOSS"
+          )
+            continue;
+
+          let sum = 0;
+          let sum2 = 0;
+          let selectedLine = [false, false, false];
+
+          const probability =
+            (line1.weight * line2.weight * line3.weight) /
+            (line1.totalWeight * line2.totalWeight * line3.totalWeight);
+
+          if (line1.type === type1 || (line1.type === "AS" && acceptAllStat1)) {
+            sum += line1.value;
+            selectedLine[0] = true;
+          }
+          if (line2.type === type1 || (line2.type === "AS" && acceptAllStat1)) {
+            sum += line2.value;
+            selectedLine[1] = true;
+          }
+          if (line3.type === type1 || (line3.type === "AS" && acceptAllStat1)) {
+            sum += line3.value;
+            selectedLine[2] = true;
+          }
+
+          if (checkSecondCriterion) {
+            if (
+              line1.type === type2 ||
+              (line1.type === "AS" && acceptAllStat2)
+            ) {
+              sum2 += line1.value;
+              selectedLine[0] = true;
+            }
+            if (
+              line2.type === type2 ||
+              (line2.type === "AS" && acceptAllStat2)
+            ) {
+              sum2 += line2.value;
+              selectedLine[1] = true;
+            }
+            if (
+              line3.type === type2 ||
+              (line3.type === "AS" && acceptAllStat2)
+            ) {
+              sum2 += line3.value;
+              selectedLine[2] = true;
+            }
+          }
+
+          if (
+            (!checkSecondCriterion && sum >= x1) ||
+            (checkSecondCriterion && sum >= x1 && sum2 >= x2)
+          ) {
+            totalHexaProbability += probability;
+          } else {
+            let keyArray = [];
+            if (selectedLine[0]) {
+              keyArray.push(line1.value.toString() + " " + line1.type);
+            }
+            if (selectedLine[1]) {
+              keyArray.push(line2.value.toString() + " " + line2.type);
+            }
+            if (selectedLine[2]) {
+              keyArray.push(line3.value.toString() + " " + line3.type);
+            }
+            keySorter(keyArray); // Sort the keys in a specific way
+            let key = keyArray.join(", ");
+
+            if (key in data) {
+              data[key] += probability;
+            } else {
+              data[key] = probability;
+            }
+          }
+        }
+      }
+    }
+
+    for (const line1 of redSecondLineOptions) {
+      for (const line2 of redThirdLineOptions) {
+        for (const line3 of redThirdLineOptions) {
+          totalHexaProbability += hexaNext3LinesProbCalc(
+            x1,
+            type1,
+            x2,
+            type2,
+            checkSecondCriterion,
+            acceptAllStat1,
+            acceptAllStat2,
+            data,
+            line1,
+            line2,
+            line3
+          );
+        }
+      }
+    }
+
+    let totalProbabilityInData = 0;
+    let count = 0;
+    for (const [key, value] of Object.entries(data)) {
+      // console.log("Key:", key, "Value:", value);
+      totalProbabilityInData += value;
+      // count += 1;
+    }
+
+    // Red cube's probability will not be stored in data
+    const redCubeProbability = 1 - totalProbabilityInData;
+
+    setRedProbability(redCubeProbability);
+    setRedCubeNumber(Math.round(1 / redCubeProbability));
+    setHexaProbability(totalHexaProbability);
+    setHexaCubeNumber(Math.round(1 / totalHexaProbability));
+
+    // console.log(totalProbabilityInData, count, "unique lines in dictionary.");
+    // console.log("Total probability:", totalHexaProbability);
+    // console.log("Hexa results: 1 in", 1 / totalHexaProbability, "cubes.");
+  };
+
+  const blackProbCalc = (x1, type1, x2, type2) => {
+    let acceptAllStat1 = false;
+    let acceptAllStat2 = false;
+    let totalBlackProbability = 0;
+    let checkSecondCriterion = false;
+
+    if (
+      type1 === "STR" ||
+      type1 === "DEX" ||
+      type1 === "INT" ||
+      type1 === "LUK"
+    ) {
+      acceptAllStat1 = true;
+    }
+    if (
+      type2 === "STR" ||
+      type2 === "DEX" ||
+      type2 === "INT" ||
+      type2 === "LUK"
+    ) {
+      acceptAllStat2 = true;
+    }
+
+    if (x2 !== "" && type2 !== "") {
+      checkSecondCriterion = true;
+    } else {
+      checkSecondCriterion = false;
+    }
+
+    for (const line1 of legendLineOptions) {
+      for (const line2 of blackSecondLineOptions) {
+        for (const line3 of blackThirdLineOptions) {
+          if (
+            line1.type === "BOSS" &&
+            line2.type === "BOSS" &&
+            line3.type === "BOSS"
+          )
+            continue;
+
+          let sum = 0;
+          let sum2 = 0;
+
+          const probability =
+            (line1.weight * line2.weight * line3.weight) /
+            (line1.totalWeight * line2.totalWeight * line3.totalWeight);
+
+          if (line1.type === type1 || (line1.type === "AS" && acceptAllStat1)) {
+            sum += line1.value;
+          }
+          if (line2.type === type1 || (line2.type === "AS" && acceptAllStat1)) {
+            sum += line2.value;
+          }
+          if (line3.type === type1 || (line3.type === "AS" && acceptAllStat1)) {
+            sum += line3.value;
+          }
+
+          if (checkSecondCriterion) {
+            if (
+              line1.type === type2 ||
+              (line1.type === "AS" && acceptAllStat2)
+            ) {
+              sum2 += line1.value;
+            }
+            if (
+              line2.type === type2 ||
+              (line2.type === "AS" && acceptAllStat2)
+            ) {
+              sum2 += line2.value;
+            }
+            if (
+              line3.type === type2 ||
+              (line3.type === "AS" && acceptAllStat2)
+            ) {
+              sum2 += line3.value;
+            }
+
+            if (sum >= x1 && sum2 >= x2) {
+              totalBlackProbability += probability;
+            }
+          } else {
+            if (sum >= x1) {
+              totalBlackProbability += probability;
+            }
+          }
+        }
+      }
+    }
+
+    setBlackProbability(totalBlackProbability);
+    setBlackCubeNumber(Math.round(1 / totalBlackProbability));
+  };
+
+  const equalityProbCalc = (x1, type1, x2, type2) => {
+    let acceptAllStat1 = false;
+    let acceptAllStat2 = false;
+    let totalEqualityProbability = 0;
+    let checkSecondCriterion = false;
+
+    if (
+      type1 === "STR" ||
+      type1 === "DEX" ||
+      type1 === "INT" ||
+      type1 === "LUK"
+    ) {
+      acceptAllStat1 = true;
+    }
+    if (
+      type2 === "STR" ||
+      type2 === "DEX" ||
+      type2 === "INT" ||
+      type2 === "LUK"
+    ) {
+      acceptAllStat2 = true;
+    }
+
+    if (x2 !== "" && type2 !== "") {
+      checkSecondCriterion = true;
+    } else {
+      checkSecondCriterion = false;
+    }
+
+    for (const line1 of legendLineOptions) {
+      for (const line2 of legendLineOptions) {
+        for (const line3 of legendLineOptions) {
+          if (
+            line1.type === "BOSS" &&
+            line2.type === "BOSS" &&
+            line3.type === "BOSS"
+          )
+            continue;
+
+          let sum = 0;
+          let sum2 = 0;
+
+          const probability =
+            (line1.weight * line2.weight * line3.weight) /
+            (line1.totalWeight * line2.totalWeight * line3.totalWeight);
+
+          if (line1.type === type1 || (line1.type === "AS" && acceptAllStat1)) {
+            sum += line1.value;
+          }
+          if (line2.type === type1 || (line2.type === "AS" && acceptAllStat1)) {
+            sum += line2.value;
+          }
+          if (line3.type === type1 || (line3.type === "AS" && acceptAllStat1)) {
+            sum += line3.value;
+          }
+
+          if (checkSecondCriterion) {
+            if (
+              line1.type === type2 ||
+              (line1.type === "AS" && acceptAllStat2)
+            ) {
+              sum2 += line1.value;
+            }
+            if (
+              line2.type === type2 ||
+              (line2.type === "AS" && acceptAllStat2)
+            ) {
+              sum2 += line2.value;
+            }
+            if (
+              line3.type === type2 ||
+              (line3.type === "AS" && acceptAllStat2)
+            ) {
+              sum2 += line3.value;
+            }
+
+            if (sum >= x1 && sum2 >= x2) {
+              totalEqualityProbability += probability;
+            }
+          } else {
+            if (sum >= x1) {
+              totalEqualityProbability += probability;
+            }
+          }
+        }
+      }
+    }
+
+    setEqualityProbability(totalEqualityProbability);
+    setEqualityCubeNumber(Math.round(1 / totalEqualityProbability));
+  };
+
+  const calcAllCubeProbabilities = (x1, type1, x2, type2) => {
+    blackProbCalc(x1, type1, x2, type2);
+    hexaAndRedProbCalc(x1, type1, x2, type2);
+    equalityProbCalc(x1, type1, x2, type2);
+  };
+
+  //============================================================= END ===============================================================
+
   function clearRows() {
     setRows([]);
   }
@@ -468,6 +1159,8 @@ export default function PotentialTable() {
   }
 
   function addIfMoreThanStat(x1, type1, x2, type2) {
+    let rowId = 0;
+
     lineOptions.forEach((line1, i) => {
       subLineOptions.forEach((line2, j) => {
         subLineOptions.forEach((line3, k) => {
@@ -491,7 +1184,8 @@ export default function PotentialTable() {
 
               addToRows(
                 createRow(
-                  curRowId,
+                  // curRowId,
+                  rowId,
                   line1.stat,
                   line2.stat,
                   line3.stat,
@@ -501,7 +1195,8 @@ export default function PotentialTable() {
                   hexaPercentage
                 )
               );
-              setCurRowId(curRowId + 1);
+              rowId += 1;
+              // setCurRowId(curRowId + 1);
             }
           }
         });
@@ -711,6 +1406,12 @@ export default function PotentialTable() {
                     xTwoInputValue,
                     typeTwoInputValue
                   );
+                  calcAllCubeProbabilities(
+                    xOneInputValue,
+                    typeOneInputValue,
+                    xTwoInputValue,
+                    typeTwoInputValue
+                  );
                 }}
                 color="primary"
                 aria-label="Do the magic"
@@ -812,121 +1513,241 @@ export default function PotentialTable() {
 
       <Paper elevation={2} className="container">
         <TableContainer component={Paper}>
-          <Table className={classes.table} aria-label="spanning table">
-            <TableHead>
-              {/* <TableRow>
-                <TableCell>Total Purple(%)</TableCell>
-                <TableCell align="right">{`${getTotalHexaPercentages() * 100} %`}</TableCell>
-                <TableCell align="right">{`One in ${Math.round(1 / (getTotalHexaPercentages()))} purple cubes`}</TableCell>
-              </TableRow> */}
-              <TableRow>
-                <TableCell>
-                  Total Red(%)
-                  <img height="18px" src={redCubeIcon} />
-                </TableCell>
-                <TableCell align="right">{`${
-                  getTotalRedPercentages() * 100
-                } %`}</TableCell>
-                <TableCell align="right">{`One in ${Math.round(
-                  1 / getTotalRedPercentages()
-                )} red cubes`}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  Total Black(%)
-                  <img height="18px" src={blackCubeIcon} />
-                </TableCell>
-                <TableCell align="right">{`${
-                  getTotalBlackPercentages() * 100
-                } %`}</TableCell>
-                <TableCell align="right">{`One in ${Math.round(
-                  1 / getTotalBlackPercentages()
-                )} black cubes`}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  Total Equality(%) <img height="17px" src={equalityCubeIcon} />
-                </TableCell>
-                <TableCell align="right">{`${
-                  getTotalEqualityPercentages() * 100
-                } %`}</TableCell>
-                <TableCell align="right">{`One in ${Math.round(
-                  1 / getTotalEqualityPercentages()
-                )} equality cubes`}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>
-                  Total Hexa(%) &nbsp;
-                  <img height="17px" src={hexaCubeIcon} />
-                </TableCell>
-                <TableCell align="right">{`${
-                  getTotalHexaPercentages() * 100
-                } %`}</TableCell>
-                <TableCell align="right">{`One in ${Math.round(
-                  1 / getTotalHexaPercentages()
-                )} hexa cubes`}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell align="center" colSpan={3}>
-                  Lines
-                </TableCell>
-                <TableCell align="right">Percentages</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell align="center">Line 1</TableCell>
-                <TableCell align="center">Line 2</TableCell>
-                <TableCell align="center">Line 3</TableCell>
-                {/* <TableCell align="center">
-                  <img src={purpleCubeIcon} />
-                  &nbsp;Purple (%)
-                </TableCell> */}
-                <TableCell align="center">
-                  <img src={redCubeIcon} />
-                  &nbsp;Red (%)
-                </TableCell>
-                <TableCell align="center">
-                  <img src={blackCubeIcon} />
-                  &nbsp;Black (%)
-                </TableCell>
-                <TableCell align="center">
-                  <img src={equalityCubeIcon} />
-                  &nbsp;Equality (%)
-                </TableCell>
-                <TableCell align="center">
-                  <img src={hexaCubeIcon} />
-                  &nbsp;Hexa (%)
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows.map((row) => (
-                <TableRow key={row.id}>
-                  <TableCell align="center">{row.line1}</TableCell>
-                  <TableCell align="center">{row.line2}</TableCell>
-                  <TableCell align="center">{row.line3}</TableCell>
-                  {/* <TableCell align="center">{`${row.red * 100}%`}</TableCell> */}
-                  <TableCell align="center">{`${row.red * 100}%`}</TableCell>
-                  <TableCell align="center">{`${row.black * 100}%`}</TableCell>
-                  <TableCell align="center">{`${
-                    row.equality * 100
-                  }%`}</TableCell>
-                  <TableCell align="center">{`${row.hexa * 100}%`}</TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      className={classes.button}
-                      onClick={() => {
-                        handleRemoveItem(row.id);
-                      }}
-                      color="primary"
-                      aria-label="Add to List"
-                    >
-                      <Clear />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <Grid container justify="left">
+            <Grid item xs={12} sm={8} md={6}>
+              <Table className={classes.table} style={{ width: "100%" }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="center">Cube Type</TableCell>
+                    <TableCell align="center">
+                      Probability %{" "}
+                      <span style={{ color: "red", fontWeight: "bold" }}>
+                        (old)
+                      </span>
+                    </TableCell>
+                    <TableCell align="center">
+                      Probability{" "}
+                      <span style={{ color: "red", fontWeight: "bold" }}>
+                        (old)
+                      </span>
+                    </TableCell>
+                    <TableCell align="center">
+                      <span style={{ color: "magenta", fontWeight: "bold" }}>
+                        Updated Probability
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell align="center">
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span>Red Cube</span>
+                        <img height="25px" src={redCubeIcon} />
+                      </div>
+                    </TableCell>
+                    <TableCell align="center">{`${
+                      getTotalRedPercentages() * 100
+                    } %`}</TableCell>
+                    <TableCell align="center">{`One in ${Math.round(
+                      1 / getTotalRedPercentages()
+                    ).toLocaleString()} red cubes`}</TableCell>
+                    <TableCell align="center">
+                      One in{" "}
+                      {redCubeNumber !== 0 ? (
+                        <b>{redCubeNumber.toLocaleString()}</b>
+                      ) : (
+                        "Infinite"
+                      )}{" "}
+                      cubes
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell align="center">
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span>Black Cube</span>
+                        <img height="25px" src={blackCubeIcon} />
+                      </div>
+                    </TableCell>
+                    <TableCell align="center">{`${
+                      getTotalBlackPercentages() * 100
+                    } %`}</TableCell>
+                    <TableCell align="center">{`One in ${Math.round(
+                      1 / getTotalBlackPercentages()
+                    ).toLocaleString()} black cubes`}</TableCell>
+                    <TableCell align="center">
+                      One in{" "}
+                      {blackCubeNumber !== 0 ? (
+                        <b>{blackCubeNumber.toLocaleString()}</b>
+                      ) : (
+                        "Infinite"
+                      )}{" "}
+                      cubes
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell align="center">
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span>Equality Cube</span>
+                        <img height="25px" src={equalityCubeIcon} />
+                      </div>
+                    </TableCell>
+                    <TableCell align="center">{`${
+                      getTotalEqualityPercentages() * 100
+                    } %`}</TableCell>
+                    <TableCell align="center">{`One in ${Math.round(
+                      1 / getTotalEqualityPercentages()
+                    ).toLocaleString()} equality cubes`}</TableCell>
+                    <TableCell align="center">
+                      One in{" "}
+                      {equalityCubeNumber !== 0 ? (
+                        <b>{equalityCubeNumber.toLocaleString()}</b>
+                      ) : (
+                        "Infinite"
+                      )}{" "}
+                      cubes
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell align="center">
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span>Hexa Cube</span>
+                        <img height="25px" src={hexaCubeIcon} />
+                      </div>
+                    </TableCell>
+                    <TableCell align="center">{`${
+                      getTotalHexaPercentages() * 100
+                    } %`}</TableCell>
+                    <TableCell align="center">{`One in ${Math.round(
+                      1 / getTotalHexaPercentages()
+                    ).toLocaleString()} hexa cubes`}</TableCell>
+                    <TableCell align="center">
+                      One in{" "}
+                      {hexaCubeNumber !== 0 ? (
+                        <b>{hexaCubeNumber.toLocaleString()}</b>
+                      ) : (
+                        "Infinite"
+                      )}{" "}
+                      cubes
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Grid>
+          </Grid>
+          <Grid container justify="left" style={{ marginTop: "20px" }}>
+            <Grid item xs={12} sm={8} md={6}>
+              <Table className={classes.table} aria-label="spanning table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="center" colSpan={3}>
+                      Lines
+                    </TableCell>
+                    <TableCell align="center" colSpan={4}>
+                      Percentages{" "}
+                      <span style={{ color: "red", fontWeight: "bold" }}>
+                        (old)
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell align="center">Line 1</TableCell>
+                    <TableCell align="center">Line 2</TableCell>
+                    <TableCell align="center">Line 3</TableCell>
+                    <TableCell align="center">
+                      <Grid container direction="column" alignItems="center">
+                        <Grid item>
+                          <img src={redCubeIcon} alt="Red Cube" />
+                        </Grid>
+                        <Grid item>&nbsp;Red (%)</Grid>
+                      </Grid>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Grid container direction="column" alignItems="center">
+                        <Grid item>
+                          <img src={blackCubeIcon} alt="Red Cube" />
+                        </Grid>
+                        <Grid item>Black (%)</Grid>
+                      </Grid>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Grid container direction="column" alignItems="center">
+                        <Grid item>
+                          <img src={equalityCubeIcon} alt="Red Cube" />
+                        </Grid>
+                        <Grid item>Equality (%)</Grid>
+                      </Grid>
+                    </TableCell>
+                    <TableCell align="center">
+                      <Grid container direction="column" alignItems="center">
+                        <Grid item>
+                          <img src={hexaCubeIcon} alt="Red Cube" />
+                        </Grid>
+                        <Grid item>Hexa (%)</Grid>
+                      </Grid>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell align="center">{row.line1}</TableCell>
+                      <TableCell align="center">{row.line2}</TableCell>
+                      <TableCell align="center">{row.line3}</TableCell>
+                      <TableCell align="center">{`${
+                        row.red * 100
+                      }%`}</TableCell>
+                      <TableCell align="center">{`${
+                        row.black * 100
+                      }%`}</TableCell>
+                      <TableCell align="center">{`${
+                        row.equality * 100
+                      }%`}</TableCell>
+                      <TableCell align="center">{`${
+                        row.hexa * 100
+                      }%`}</TableCell>
+                      <TableCell align="right">
+                        <IconButton
+                          className={classes.button}
+                          onClick={() => {
+                            handleRemoveItem(row.id);
+                          }}
+                          color="primary"
+                          aria-label="Remove Item"
+                        >
+                          <Clear />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Grid>
+          </Grid>
         </TableContainer>
       </Paper>
       <Paper>
