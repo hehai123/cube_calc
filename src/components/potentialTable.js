@@ -149,6 +149,7 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     padding: theme.spacing(1),
+    margin: "0 5px",
     textAlign: "center",
     backgroundColor: "#D6E4FF",
   },
@@ -216,6 +217,7 @@ export default function PotentialTable() {
   const [subLineOptions, setSubLineOptions] = React.useState([]);
   const [typeOptions, setTypeOptions] = React.useState([]);
   const [typeOptionsTwo, setTypeOptionsTwo] = React.useState([]);
+  const [checkSecondCriterion, setCheckSecondCombination] = useState(false);
 
   //line percentages
   const [lineOneRedPercentage, setLineOneRedPercentage] = React.useState(0);
@@ -592,7 +594,6 @@ export default function PotentialTable() {
     type1,
     x2,
     type2,
-    checkSecondCriterion,
     acceptAllStat1,
     acceptAllStat2,
     data,
@@ -768,7 +769,7 @@ export default function PotentialTable() {
     let acceptAllStat1 = false;
     let acceptAllStat2 = false;
     let totalHexaProbability = 0;
-    let checkSecondCriterion = false;
+    // let checkSecondCriterion = false;
     let data = {};
 
     if (
@@ -788,11 +789,11 @@ export default function PotentialTable() {
       acceptAllStat2 = true;
     }
 
-    if (x2 !== "" && type2 !== "") {
-      checkSecondCriterion = true;
-    } else {
-      checkSecondCriterion = false;
-    }
+    // if (x2 !== "" && type2 !== "") {
+    //   checkSecondCriterion = true;
+    // } else {
+    //   checkSecondCriterion = false;
+    // }
 
     for (const line1 of legendLineOptions) {
       for (const line2 of redSecondLineOptions) {
@@ -886,7 +887,6 @@ export default function PotentialTable() {
             type1,
             x2,
             type2,
-            checkSecondCriterion,
             acceptAllStat1,
             acceptAllStat2,
             data,
@@ -901,9 +901,9 @@ export default function PotentialTable() {
     let totalProbabilityInData = 0;
     let count = 0;
     for (const [key, value] of Object.entries(data)) {
-      // console.log("Key:", key, "Value:", value);
+      console.log("Key:", key, "Value:", value);
       totalProbabilityInData += value;
-      // count += 1;
+      count += 1;
     }
 
     // Red cube's probability will not be stored in data
@@ -914,7 +914,7 @@ export default function PotentialTable() {
     setHexaProbability(totalHexaProbability);
     setHexaCubeNumber(Math.round(1 / totalHexaProbability));
 
-    // console.log(totalProbabilityInData, count, "unique lines in dictionary.");
+    console.log(totalProbabilityInData, count, "unique lines in dictionary.");
     // console.log("Total probability:", totalHexaProbability);
     // console.log("Hexa results: 1 in", 1 / totalHexaProbability, "cubes.");
   };
@@ -923,7 +923,7 @@ export default function PotentialTable() {
     let acceptAllStat1 = false;
     let acceptAllStat2 = false;
     let totalBlackProbability = 0;
-    let checkSecondCriterion = false;
+    // let checkSecondCriterion = false;
 
     if (
       type1 === "STR" ||
@@ -942,11 +942,11 @@ export default function PotentialTable() {
       acceptAllStat2 = true;
     }
 
-    if (x2 !== "" && type2 !== "") {
-      checkSecondCriterion = true;
-    } else {
-      checkSecondCriterion = false;
-    }
+    // if (x2 !== "" && type2 !== "") {
+    //   checkSecondCriterion = true;
+    // } else {
+    //   checkSecondCriterion = false;
+    // }
 
     for (const line1 of legendLineOptions) {
       for (const line2 of blackSecondLineOptions) {
@@ -1015,7 +1015,7 @@ export default function PotentialTable() {
     let acceptAllStat1 = false;
     let acceptAllStat2 = false;
     let totalEqualityProbability = 0;
-    let checkSecondCriterion = false;
+    // let checkSecondCriterion = false;
 
     if (
       type1 === "STR" ||
@@ -1034,11 +1034,11 @@ export default function PotentialTable() {
       acceptAllStat2 = true;
     }
 
-    if (x2 !== "" && type2 !== "") {
-      checkSecondCriterion = true;
-    } else {
-      checkSecondCriterion = false;
-    }
+    // if (x2 !== "" && type2 !== "") {
+    //   checkSecondCriterion = true;
+    // } else {
+    //   checkSecondCriterion = false;
+    // }
 
     for (const line1 of legendLineOptions) {
       for (const line2 of legendLineOptions) {
@@ -1274,516 +1274,560 @@ export default function PotentialTable() {
     lineThreeHexaPercentage,
   ]);
 
+  useEffect(() => {
+    if (xTwoInputValue > 0 && typeTwoInputValue !== "") {
+      setCheckSecondCombination(true);
+    } else {
+      setCheckSecondCombination(false);
+    }
+  }, [xTwoInputValue, typeTwoInputValue]);
+
   return (
-    <div>
-      <Accordion expanded={expanded}>
-        <AccordionSummary
-          style={{
-            display: "flex",
-            // justifyContent: "center",
-            // width: "100%",
-          }}
+    <>
+      <Paper
+        elevation={2}
+        aria-label="Acknowledge"
+        onClick={(event) => event.stopPropagation()}
+        onFocus={(event) => event.stopPropagation()}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          width: "100%",
+          maxWidth: "1100px",
+          margin: "10px auto",
+        }}
+      >
+        <Container
+          className={classes.container}
+          style={isMobile ? { flexWrap: "wrap" } : {}}
         >
-          <Paper
-            elevation={2}
-            aria-label="Acknowledge"
-            onClick={(event) => event.stopPropagation()}
-            onFocus={(event) => event.stopPropagation()}
+          <Box
             style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              // marginRight: "16px",
-              width: isMobile ? "90%" : "1000px",
+              width: "50%",
+              padding: "10px",
+              flexBasis: "100%",
             }}
           >
-            <Container className={classes.container}>
-              <Box style={{ width: "50%" }}>
-                <Autocomplete
-                  id="grouped-demo"
-                  inputValue={inputValue}
-                  onInputChange={(event, newInputValue) => {
-                    newInputValue === ""
-                      ? setExpanded(false)
-                      : setExpanded(true);
-                    setInputValue(newInputValue);
-                    updateLineOptions(newInputValue);
-                    clearRows();
-                  }}
-                  options={gearOptions.sort(
-                    (a, b) => -b.type.localeCompare(a.type)
-                  )}
-                  groupBy={(option) => option.type}
-                  getOptionLabel={(option) => option.title}
-                  fullWidth
+            <Autocomplete
+              id="grouped-demo"
+              inputValue={inputValue}
+              onInputChange={(event, newInputValue) => {
+                newInputValue === "" ? setExpanded(false) : setExpanded(true);
+                setInputValue(newInputValue);
+                updateLineOptions(newInputValue);
+                clearRows();
+              }}
+              options={gearOptions.sort(
+                (a, b) => -b.type.localeCompare(a.type)
+              )}
+              groupBy={(option) => option.type}
+              getOptionLabel={(option) => option.title}
+              fullWidth
+              renderInput={(params) => (
+                <TextField {...params} label="Gear" variant="outlined" />
+              )}
+            />
+          </Box>
+          <Box
+            style={{
+              width: "50%",
+              padding: "10px",
+              flexBasis: "100%",
+            }}
+          >
+            {inputValue === "Glove" ? (
+              <Grid
+                container
+                justify="space-around"
+                alignContent="space-around"
+              >
+                <Grid item xs={6}>
+                  <Paper className={classes.paper}>
+                    16% Crit -&gt; 1 in 43 Equality
+                  </Paper>
+                </Grid>
+                <Grid item xs={6}>
+                  <Paper className={classes.paper}>
+                    24% Crit -&gt; 1 in 1331 Equality
+                  </Paper>
+                </Grid>
+              </Grid>
+            ) : inputValue === "Hat" ? (
+              <Grid
+                container
+                justify="space-around"
+                alignContent="space-around"
+              >
+                <Grid item xs={6}>
+                  <Paper className={classes.paper}>
+                    At least 3s CDR -&gt; 1 in 45 Equality
+                  </Paper>
+                </Grid>
+                <Grid item xs={6}>
+                  <Paper className={classes.paper}>
+                    At least 4s CDR -&gt; 1 in 158 Equality
+                  </Paper>
+                </Grid>
+              </Grid>
+            ) : null}
+          </Box>
+        </Container>
+        <Container className={classes.container}>
+          {inputValue === "" ? (
+            <Box
+              style={{
+                width: "50%",
+                flexBasis: "100%",
+              }}
+            >
+              <Button
+                onClick={handleHelpOpen}
+                color="primary"
+                size="large"
+                fullWidth
+              >
+                <HelpOutline />
+              </Button>
+              <Dialog
+                onClose={handleHelpClose}
+                aria-labelledby="simple-dialog-title"
+                open={helpOpen}
+              >
+                <DialogTitle id="simple-dialog-title">Wat Do?</DialogTitle>
+                <DialogContent dividers>
+                  <Typography gutterBottom>
+                    1. <strong>Select</strong> piece of gear that you want to
+                    generate lines for in <strong>dropdown</strong>
+                  </Typography>
+                  <Typography gutterBottom>
+                    2. <strong>Enter</strong> the value of the lines
+                  </Typography>
+                  <Typography gutterBottom>
+                    3. <strong>Select</strong> the type of lines
+                  </Typography>
+                  <Typography gutterBottom>
+                    4. You can filter <strong>up to 2 stats</strong> at once.
+                    eg. BOSS 60 + ATK 9 outputs line combinations with {">="}{" "}
+                    60% BOSS % 9 ATK
+                  </Typography>
+                </DialogContent>
+              </Dialog>
+            </Box>
+          ) : (
+            <Container
+              className={classes.container}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <Container
+                className={classes.container}
+                style={isMobile ? { flexWrap: "wrap" } : {}}
+              >
+                <Box
                   style={{
-                    marginBottom: "10px",
-                    // width: "50%",
-                    // alignSelf: "flex-start",
+                    width: "50%",
+                    padding: "10px",
+                    flexBasis: "100%",
                   }}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Gear" variant="outlined" />
-                  )}
-                />
-              </Box>
-              <Box style={{ width: "50%" }}>
-                {inputValue === "Glove" ? (
-                  <Grid
-                    container
-                    justify="space-around"
-                    alignContent="space-around"
-                  >
-                    <Grid item xs={5}>
-                      <Paper className={classes.paper}>
-                        16% Crit -&gt; 1 in 43 Equality
-                      </Paper>
-                    </Grid>
-                    <Grid item xs={5}>
-                      <Paper className={classes.paper}>
-                        24% Crit -&gt; 1 in 1331 Equality
-                      </Paper>
-                    </Grid>
-                  </Grid>
-                ) : // </Box>
-                inputValue === "Hat" ? (
-                  // <Box style={{ width: "50%" }}>
-                  <Grid
-                    container
-                    justify="space-around"
-                    alignContent="space-around"
-                  >
-                    <Grid item xs={5}>
-                      <Paper className={classes.paper}>
-                        At least 3s CDR -&gt; 1 in 45 Equality
-                      </Paper>
-                    </Grid>
-                    <Grid item xs={5}>
-                      <Paper className={classes.paper}>
-                        At least 4s CDR -&gt; 1 in 158 Equality
-                      </Paper>
-                    </Grid>
-                  </Grid>
-                ) : null}
-              </Box>
-            </Container>
-            <Container className={classes.container}>
-              {inputValue === "" ? (
-                <Box style={{ width: "50%" }}>
-                  <Button
-                    onClick={handleHelpOpen}
-                    color="primary"
-                    size="large"
+                >
+                  <Typography align="center">{`I want a combination of`}</Typography>
+                  <TextField
+                    id="outlined-basic"
+                    label="At Least (?) %"
+                    variant="outlined"
+                    type="number"
+                    style={{ marginBottom: "10px" }}
+                    onChange={(e) => {
+                      setXOneInputValue(safeParseInt(e.target.value));
+                      clearRows();
+                    }}
                     fullWidth
-                    // style={{ width: "50%", alignSelf: "flex-start" }}
-                  >
-                    <HelpOutline />
-                  </Button>
-                  <Dialog
-                    onClose={handleHelpClose}
-                    aria-labelledby="simple-dialog-title"
-                    open={helpOpen}
-                  >
-                    <DialogTitle id="simple-dialog-title">Wat Do?</DialogTitle>
-                    <DialogContent dividers>
-                      <Typography gutterBottom>
-                        1. <strong>Select</strong> piece of gear that you want
-                        to generate lines for in <strong>dropdown</strong>
-                      </Typography>
-                      <Typography gutterBottom>
-                        2. <strong>Enter</strong> the value of the lines
-                      </Typography>
-                      <Typography gutterBottom>
-                        3. <strong>Select</strong> the type of lines
-                      </Typography>
-                      <Typography gutterBottom>
-                        4. You can filter <strong>up to 2 stats</strong> at
-                        once. eg. BOSS 60 + ATK 9 outputs line combinations with{" "}
-                        {">"}= 60% BOSS % 9 ATK
-                      </Typography>
-                    </DialogContent>
-                  </Dialog>
+                  />
+                  <Autocomplete
+                    id="Line"
+                    inputValue={typeOneInputValue}
+                    onInputChange={(event, newInputValue) => {
+                      setTypeOneInputValue(newInputValue);
+                      clearRows();
+                    }}
+                    options={typeOptions}
+                    getOptionLabel={(option) => option.type}
+                    fullWidth
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Desired Line Type"
+                        variant="outlined"
+                      />
+                    )}
+                  />
                 </Box>
-              ) : (
-                <>
-                  <Container maxWidth="lg" className={classes.container}>
-                    <Box style={{ width: "50%" }}>
-                      <Typography align="center">
-                        {`I want a combination of`}
-                      </Typography>
-
+                <Box
+                  style={{
+                    width: "50%",
+                    padding: "10px",
+                    flexBasis: "100%",
+                  }}
+                >
+                  {xOneInputValue === 0 || typeOneInputValue === "" ? null : (
+                    <>
+                      <Typography align="center">{`as well as (leave blank if not required)`}</Typography>
                       <TextField
                         id="outlined-basic"
                         label="At Least (?) %"
                         variant="outlined"
                         type="number"
-                        style={{ marginBottom: "10px" }}
-                        //value={xOneInputValue}
                         onChange={(e) => {
-                          setXOneInputValue(safeParseInt(e.target.value));
+                          setXTwoInputValue(safeParseInt(e.target.value));
                           clearRows();
                         }}
+                        style={{ marginBottom: "10px" }}
                         fullWidth
                       />
-
                       <Autocomplete
                         id="Line"
-                        inputValue={typeOneInputValue}
+                        inputValue={typeTwoInputValue}
                         onInputChange={(event, newInputValue) => {
-                          setTypeOneInputValue(newInputValue);
+                          setTypeTwoInputValue(newInputValue);
                           clearRows();
                         }}
-                        options={typeOptions}
+                        options={typeOptionsTwo}
                         getOptionLabel={(option) => option.type}
                         fullWidth
-                        style={{ marginBottom: "10px" }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
-                            label="Desired Line Type"
+                            label="Desired Line Type 2"
                             variant="outlined"
                           />
                         )}
                       />
-                    </Box>
-
-                    <Box style={{ width: "50%" }}>
-                      {xOneInputValue === 0 ||
-                      typeOneInputValue === "" ? null : (
-                        <>
-                          <Typography padding="10px" align="center">
-                            {`as well as (leave blank if not required)`}
-                          </Typography>
-
-                          <TextField
-                            id="outlined-basic"
-                            label="At Least (?) %"
-                            variant="outlined"
-                            value={xTwoInputValue}
-                            onChange={(e) => {
-                              setXTwoInputValue(safeParseInt(e.target.value));
-                              clearRows();
-                            }}
-                            className={classes.buffer}
-                            fullWidth
-                          />
-
-                          <Autocomplete
-                            id="Line"
-                            inputValue={typeTwoInputValue}
-                            onInputChange={(event, newInputValue) => {
-                              setTypeTwoInputValue(newInputValue);
-                              clearRows();
-                            }}
-                            options={typeOptionsTwo}
-                            getOptionLabel={(option) => option.type}
-                            fullWidth
-                            renderInput={(params) => (
-                              <TextField
-                                {...params}
-                                label="Desired Line Type 2"
-                                variant="outlined"
-                              />
-                            )}
-                          />
-                        </>
-                      )}
-                    </Box>
-                  </Container>
-                  <Box style={{ width: "50%" }}>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      size="large"
-                      style={{ marginTop: "10px" }}
-                      fullWidth
-                      onClick={() => {
-                        clearRows();
-                        addIfMoreThanStat(
-                          xOneInputValue,
-                          typeOneInputValue,
-                          xTwoInputValue,
-                          typeTwoInputValue
-                        );
-                        calcAllCubeProbabilities(
-                          xOneInputValue,
-                          typeOneInputValue,
-                          xTwoInputValue,
-                          typeTwoInputValue
-                        );
-                      }}
-                    >
-                      Calculate
-                    </Button>
-                  </Box>
-                </>
-              )}
+                    </>
+                  )}
+                </Box>
+              </Container>
+              <Box
+                style={{
+                  width: "100%",
+                  padding: "0 10px 10px 10px",
+                  boxSizing: "border-box",
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  size="large"
+                  fullWidth
+                  onClick={() => {
+                    clearRows();
+                    addIfMoreThanStat(
+                      xOneInputValue,
+                      typeOneInputValue,
+                      xTwoInputValue,
+                      typeTwoInputValue
+                    );
+                    calcAllCubeProbabilities(
+                      xOneInputValue,
+                      typeOneInputValue,
+                      xTwoInputValue,
+                      typeTwoInputValue
+                    );
+                  }}
+                >
+                  Calculate
+                </Button>
+              </Box>
             </Container>
-          </Paper>
-        </AccordionSummary>
-      </Accordion>
+          )}
+        </Container>
+      </Paper>
+      {/* </AccordionSummary>
+      </Accordion> */}
 
       <Paper elevation={2} className="container">
         <TableContainer component={Paper}>
           <Grid container justify="center" style={{ marginTop: "10px" }}>
-            <Grid style={{ border: "1px solid black" }}>
-              <Table className={classes.table}>
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="center">Cube Type</TableCell>
-                    <TableCell align="center">
-                      <div>Probability&nbsp;(%)</div>
-                      <div>
-                        <span style={{ color: "magenta", fontWeight: "bold" }}>
-                          (Updated)
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell align="center">
-                      <div>Probability&nbsp;(1&nbsp;in&nbsp;x)</div>
-                      <div>
-                        <span style={{ color: "magenta", fontWeight: "bold" }}>
-                          (Updated)
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell align="center">
-                      <div>Probability&nbsp;(1&nbsp;in&nbsp;x)</div>
-                      <div>
-                        <span style={{ color: "red", fontWeight: "bold" }}>
-                          (Old)
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell align="center">
-                      <div>Probability&nbsp;(%){"\n"}</div>
-                      <div>
-                        <span style={{ color: "red", fontWeight: "bold" }}>
-                          (Old)
-                        </span>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell align="center">
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                      >
-                        <span>Red Cube</span>
-                        <img height="25px" src={redCubeIcon} />
-                      </div>
-                    </TableCell>
-                    <TableCell align="center">
-                      {(redProbability * 100).toPrecision(5)}&nbsp;%
-                    </TableCell>
-                    <TableCell align="center">
-                      One in{" "}
-                      {redCubeNumber !== 0 ? (
-                        <b>{redCubeNumber.toLocaleString()}</b>
-                      ) : (
-                        "Infinite"
-                      )}{" "}
-                      cubes
-                    </TableCell>
-                    <TableCell align="center">{`One in ${Math.round(
-                      1 / getTotalRedPercentages()
-                    ).toLocaleString()} red cubes`}</TableCell>
-                    <TableCell align="center">{`${
-                      getTotalRedPercentages() * 100
-                    } %`}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell align="center">
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                      >
-                        <span>Black&nbsp;Cube</span>
-                        <img height="25px" src={blackCubeIcon} />
-                      </div>
-                    </TableCell>
-                    <TableCell align="center">
-                      {(blackProbability * 100).toPrecision(5)}&nbsp;%
-                    </TableCell>
-                    <TableCell align="center">
-                      One in{" "}
-                      {blackCubeNumber !== 0 ? (
-                        <b>{blackCubeNumber.toLocaleString()}</b>
-                      ) : (
-                        "Infinite"
-                      )}{" "}
-                      cubes
-                    </TableCell>
-                    <TableCell align="center">{`One in ${Math.round(
-                      1 / getTotalBlackPercentages()
-                    ).toLocaleString()} black cubes`}</TableCell>
-                    <TableCell align="center">{`${
-                      getTotalBlackPercentages() * 100
-                    } %`}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell align="center">
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                      >
-                        <span>Equality&nbsp;Cube</span>
-                        <img height="25px" src={equalityCubeIcon} />
-                      </div>
-                    </TableCell>
-                    <TableCell align="center">
-                      {(equalityProbability * 100).toPrecision(5)}&nbsp;%
-                    </TableCell>
-                    <TableCell align="center">
-                      One in{" "}
-                      {equalityCubeNumber !== 0 ? (
-                        <b>{equalityCubeNumber.toLocaleString()}</b>
-                      ) : (
-                        "Infinite"
-                      )}{" "}
-                      cubes
-                    </TableCell>
-                    <TableCell align="center">{`One in ${Math.round(
-                      1 / getTotalEqualityPercentages()
-                    ).toLocaleString()} equality cubes`}</TableCell>
-                    <TableCell align="center">{`${
-                      getTotalEqualityPercentages() * 100
-                    } %`}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell align="center">
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                        }}
-                      >
-                        <span>Hexa Cube</span>
-                        <img height="25px" src={hexaCubeIcon} />
-                      </div>
-                    </TableCell>
-                    <TableCell align="center">
-                      {(hexaProbability * 100).toPrecision(5)}&nbsp;%
-                    </TableCell>
-                    <TableCell align="center">
-                      One in{" "}
-                      {hexaCubeNumber !== 0 ? (
-                        <b>{hexaCubeNumber.toLocaleString()}</b>
-                      ) : (
-                        "Infinite"
-                      )}{" "}
-                      cubes
-                    </TableCell>
-                    <TableCell align="center">{`One in ${Math.round(
-                      1 / getTotalHexaPercentages()
-                    ).toLocaleString()} hexa cubes`}</TableCell>
-                    <TableCell align="center">{`${
-                      getTotalHexaPercentages() * 100
-                    } %`}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </Grid>
-          </Grid>
-          <Grid container justify="flex-start" style={{ marginTop: "20px" }}>
-            <Grid item xs={12} sm={8} md={6}>
-              <Table className={classes.table} aria-label="spanning table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell align="center" colSpan={3}>
-                      Lines
-                    </TableCell>
-                    <TableCell align="center" colSpan={4}>
-                      Percentages{" "}
-                      <span style={{ color: "red", fontWeight: "bold" }}>
-                        (old)
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell align="center">Line 1</TableCell>
-                    <TableCell align="center">Line 2</TableCell>
-                    <TableCell align="center">Line 3</TableCell>
-                    <TableCell align="center">
-                      <Grid container direction="column" alignItems="center">
-                        <Grid item>
-                          <img src={redCubeIcon} alt="Red Cube" />
-                        </Grid>
-                        <Grid item>&nbsp;Red (%)</Grid>
-                      </Grid>
-                    </TableCell>
-                    <TableCell align="center">
-                      <Grid container direction="column" alignItems="center">
-                        <Grid item>
-                          <img src={blackCubeIcon} alt="Red Cube" />
-                        </Grid>
-                        <Grid item>Black (%)</Grid>
-                      </Grid>
-                    </TableCell>
-                    <TableCell align="center">
-                      <Grid container direction="column" alignItems="center">
-                        <Grid item>
-                          <img src={equalityCubeIcon} alt="Red Cube" />
-                        </Grid>
-                        <Grid item>Equality&nbsp;(%)</Grid>
-                      </Grid>
-                    </TableCell>
-                    <TableCell align="center">
-                      <Grid container direction="column" alignItems="center">
-                        <Grid item>
-                          <img src={hexaCubeIcon} alt="Red Cube" />
-                        </Grid>
-                        <Grid item>Hexa (%)</Grid>
-                      </Grid>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell align="center">{row.line1}</TableCell>
-                      <TableCell align="center">{row.line2}</TableCell>
-                      <TableCell align="center">{row.line3}</TableCell>
-                      <TableCell align="center">{`${
-                        row.red * 100
-                      }%`}</TableCell>
-                      <TableCell align="center">{`${
-                        row.black * 100
-                      }%`}</TableCell>
-                      <TableCell align="center">{`${
-                        row.equality * 100
-                      }%`}</TableCell>
-                      <TableCell align="center">{`${
-                        row.hexa * 100
-                      }%`}</TableCell>
-                      <TableCell align="right">
-                        <IconButton
-                          className={classes.button}
-                          onClick={() => {
-                            handleRemoveItem(row.id);
-                          }}
-                          color="primary"
-                          aria-label="Remove Item"
-                        >
-                          <Clear />
-                        </IconButton>
+            <Grid style={{ border: "1px solid black", overflowX: "auto" }}>
+              <div style={{ minWidth: "600px" }}>
+                <Table className={classes.table}>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="center">Cube Type</TableCell>
+                      <TableCell align="center">
+                        <div>Probability&nbsp;(%)</div>
+                        <div>
+                          <span
+                            style={{ color: "magenta", fontWeight: "bold" }}
+                          >
+                            (Updated)
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell align="center">
+                        <div>Probability&nbsp;(1&nbsp;in&nbsp;x)</div>
+                        <div>
+                          <span
+                            style={{ color: "magenta", fontWeight: "bold" }}
+                          >
+                            (Updated)
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell align="center">
+                        <div>Probability&nbsp;(1&nbsp;in&nbsp;x)</div>
+                        <div>
+                          <span style={{ color: "red", fontWeight: "bold" }}>
+                            (Old)
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell align="center">
+                        <div>Probability&nbsp;(%){"\n"}</div>
+                        <div>
+                          <span style={{ color: "red", fontWeight: "bold" }}>
+                            (Old)
+                          </span>
+                        </div>
                       </TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell align="center">
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span>Red Cube</span>
+                          <img height="25px" src={redCubeIcon} />
+                        </div>
+                      </TableCell>
+                      <TableCell align="center">
+                        {(redProbability * 100).toPrecision(5)}&nbsp;%
+                      </TableCell>
+                      <TableCell align="center">
+                        One in{" "}
+                        {redCubeNumber !== 0 ? (
+                          <b>{redCubeNumber.toLocaleString()}</b>
+                        ) : (
+                          "Infinite"
+                        )}{" "}
+                        cubes
+                      </TableCell>
+                      <TableCell align="center">{`One in ${Math.round(
+                        1 / getTotalRedPercentages()
+                      ).toLocaleString()} red cubes`}</TableCell>
+                      <TableCell align="center">{`${
+                        getTotalRedPercentages() * 100
+                      } %`}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell align="center">
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span>Black&nbsp;Cube</span>
+                          <img height="25px" src={blackCubeIcon} />
+                        </div>
+                      </TableCell>
+                      <TableCell align="center">
+                        {(blackProbability * 100).toPrecision(5)}&nbsp;%
+                      </TableCell>
+                      <TableCell align="center">
+                        One in{" "}
+                        {blackCubeNumber !== 0 ? (
+                          <b>{blackCubeNumber.toLocaleString()}</b>
+                        ) : (
+                          "Infinite"
+                        )}{" "}
+                        cubes
+                      </TableCell>
+                      <TableCell align="center">{`One in ${Math.round(
+                        1 / getTotalBlackPercentages()
+                      ).toLocaleString()} black cubes`}</TableCell>
+                      <TableCell align="center">{`${
+                        getTotalBlackPercentages() * 100
+                      } %`}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell align="center">
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span>Equality&nbsp;Cube</span>
+                          <img height="25px" src={equalityCubeIcon} />
+                        </div>
+                      </TableCell>
+                      <TableCell align="center">
+                        {(equalityProbability * 100).toPrecision(5)}&nbsp;%
+                      </TableCell>
+                      <TableCell align="center">
+                        One in{" "}
+                        {equalityCubeNumber !== 0 ? (
+                          <b>{equalityCubeNumber.toLocaleString()}</b>
+                        ) : (
+                          "Infinite"
+                        )}{" "}
+                        cubes
+                      </TableCell>
+                      <TableCell align="center">{`One in ${Math.round(
+                        1 / getTotalEqualityPercentages()
+                      ).toLocaleString()} equality cubes`}</TableCell>
+                      <TableCell align="center">{`${
+                        getTotalEqualityPercentages() * 100
+                      } %`}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell align="center">
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span>Hexa Cube</span>
+                          <img height="25px" src={hexaCubeIcon} />
+                        </div>
+                      </TableCell>
+                      <TableCell align="center">
+                        {(hexaProbability * 100).toPrecision(5)}&nbsp;%
+                      </TableCell>
+                      <TableCell align="center">
+                        One in{" "}
+                        {hexaCubeNumber !== 0 ? (
+                          <b>{hexaCubeNumber.toLocaleString()}</b>
+                        ) : (
+                          "Infinite"
+                        )}{" "}
+                        cubes
+                      </TableCell>
+                      <TableCell align="center">{`One in ${Math.round(
+                        1 / getTotalHexaPercentages()
+                      ).toLocaleString()} hexa cubes`}</TableCell>
+                      <TableCell align="center">{`${
+                        getTotalHexaPercentages() * 100
+                      } %`}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+            </Grid>
+          </Grid>
+          <Grid
+            container
+            justify="center"
+            style={{
+              marginTop: "20px",
+              marginLeft: isMobile ? "10px" : "0",
+              marginRight: isMobile ? "10px" : "0",
+            }}
+          >
+            <Grid item xs={12} sm={12} md={12}>
+              <div style={{ minWidth: "1000px" }}>
+                <Table className={classes.table} aria-label="spanning table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="center" colSpan={3}>
+                        Lines
+                      </TableCell>
+                      <TableCell align="center" colSpan={4}>
+                        Percentages{" "}
+                        <span style={{ color: "red", fontWeight: "bold" }}>
+                          (old)
+                        </span>
+                      </TableCell>
+                      <TableCell align="center">Actions</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell align="center">Line 1</TableCell>
+                      <TableCell align="center">Line 2</TableCell>
+                      <TableCell align="center">Line 3</TableCell>
+                      <TableCell align="center">
+                        <Grid container direction="column" alignItems="center">
+                          <Grid item>
+                            <img src={redCubeIcon} alt="Red Cube" />
+                          </Grid>
+                          <Grid item>&nbsp;Red (%)</Grid>
+                        </Grid>
+                      </TableCell>
+                      <TableCell align="center">
+                        <Grid container direction="column" alignItems="center">
+                          <Grid item>
+                            <img src={blackCubeIcon} alt="Black Cube" />
+                          </Grid>
+                          <Grid item>Black (%)</Grid>
+                        </Grid>
+                      </TableCell>
+                      <TableCell align="center">
+                        <Grid container direction="column" alignItems="center">
+                          <Grid item>
+                            <img src={equalityCubeIcon} alt="Equality Cube" />
+                          </Grid>
+                          <Grid item>Equality&nbsp;(%)</Grid>
+                        </Grid>
+                      </TableCell>
+                      <TableCell align="center">
+                        <Grid container direction="column" alignItems="center">
+                          <Grid item>
+                            <img src={hexaCubeIcon} alt="Hexa Cube" />
+                          </Grid>
+                          <Grid item>Hexa (%)</Grid>
+                        </Grid>
+                      </TableCell>
+                      <TableCell align="center">Remove</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {rows.map((row) => (
+                      <TableRow key={row.id}>
+                        <TableCell align="center">{row.line1}</TableCell>
+                        <TableCell align="center">{row.line2}</TableCell>
+                        <TableCell align="center">{row.line3}</TableCell>
+                        <TableCell align="center">{`${
+                          row.red * 100
+                        }%`}</TableCell>
+                        <TableCell align="center">{`${
+                          row.black * 100
+                        }%`}</TableCell>
+                        <TableCell align="center">{`${
+                          row.equality * 100
+                        }%`}</TableCell>
+                        <TableCell align="center">{`${
+                          row.hexa * 100
+                        }%`}</TableCell>
+                        <TableCell align="center">
+                          <IconButton
+                            className={classes.button}
+                            onClick={() => {
+                              handleRemoveItem(row.id);
+                            }}
+                            color="primary"
+                            aria-label="Remove Item"
+                          >
+                            <Clear />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </Grid>
           </Grid>
         </TableContainer>
@@ -1828,6 +1872,6 @@ export default function PotentialTable() {
           NaN input bug fixed by https://github.com/hehai123/cube_calc
         </Typography>
       </Paper>
-    </div>
+    </>
   );
 }

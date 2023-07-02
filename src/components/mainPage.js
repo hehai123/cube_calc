@@ -38,7 +38,7 @@ const MainPage = () => {
   };
 
   return (
-    <div>
+    <>
       <AppBar position="static">
         <Toolbar style={{ backgroundColor: "#f25c54" }}>
           <IconButton
@@ -50,7 +50,7 @@ const MainPage = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
-            Maple Math with Shitty UI
+            Maple Math with <del>Shitty</del> Okay UI
           </Typography>
           <Button
             className={classes.button}
@@ -66,7 +66,7 @@ const MainPage = () => {
         </Toolbar>
       </AppBar>
       {open ? <PotentialTable /> : <ShouldITodd />}
-    </div>
+    </>
   );
 };
 
