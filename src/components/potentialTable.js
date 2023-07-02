@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import {
   Paper,
   TextField,
@@ -20,6 +21,7 @@ import {
   DialogTitle,
   DialogContent,
   Button,
+  Container,
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import {
@@ -88,6 +90,7 @@ import blackCubeIcon from "./icons/black_clean.png";
 import redCubeIcon from "./icons/red_clean.png";
 import equalityCubeIcon from "./icons/equality_clean.png";
 import hexaCubeIcon from "./icons/hexa_clean.png";
+import { display } from "@material-ui/system";
 
 //CSS
 const useStyles = makeStyles((theme) => ({
@@ -144,6 +147,16 @@ const useStyles = makeStyles((theme) => ({
     flex: "1 1 150px" /*  Stretching: */,
     margin: "5px",
   },
+  paper: {
+    padding: theme.spacing(1),
+    textAlign: "center",
+    backgroundColor: "#D6E4FF",
+  },
+  container: {
+    display: "flex",
+    justifyContent: "space-between",
+    padding: "0",
+  },
 }));
 
 const WhiteTextTypography = withStyles({
@@ -182,6 +195,7 @@ const gearOptions = gearType.map((option) => {
 });
 
 export default function PotentialTable() {
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const classes = useStyles();
   const history = useHistory();
 
@@ -571,7 +585,7 @@ export default function PotentialTable() {
     return perm1 * 6 + perm2 + perm3 * 3;
   }
 
-  //============================================================= XD ================================================================
+  //============================================================= July 2023 ================================================================
   // Handles probability together with 4th, 5th and 6th line
   const hexaNext3LinesProbCalc = (
     x1,
@@ -1262,279 +1276,291 @@ export default function PotentialTable() {
 
   return (
     <div>
-      <Accordion expanded={expanded} fullWidth>
-        {inputValue === "" ? (
-          <AccordionSummary
-            aria-label="Expand"
-            aria-controls="additional-actions1-content"
-            id="additional-actions1-header"
+      <Accordion expanded={expanded}>
+        <AccordionSummary
+          style={{
+            display: "flex",
+            // justifyContent: "center",
+            // width: "100%",
+          }}
+        >
+          <Paper
+            elevation={2}
+            aria-label="Acknowledge"
+            onClick={(event) => event.stopPropagation()}
+            onFocus={(event) => event.stopPropagation()}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              // marginRight: "16px",
+              width: isMobile ? "90%" : "1000px",
+            }}
           >
-            <Paper
-              elevation={2}
-              width="50%"
-              aria-label="Acknowledge"
-              onClick={(event) => event.stopPropagation()}
-              onFocus={(event) => event.stopPropagation()}
-            >
-              <Autocomplete
-                id="grouped-demo"
-                inputValue={inputValue}
-                onInputChange={(event, newInputValue) => {
-                  newInputValue === "" ? setExpanded(false) : setExpanded(true);
-                  setInputValue(newInputValue);
-                  updateLineOptions(newInputValue);
-                  clearRows();
-                }}
-                options={gearOptions.sort(
-                  (a, b) => -b.type.localeCompare(a.type)
-                )}
-                groupBy={(option) => option.type}
-                getOptionLabel={(option) => option.title}
-                style={{ width: 300 }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Gear" variant="outlined" />
-                )}
-              />
-              <IconButton
-                variant="contained"
-                color="primary"
-                onClick={handleHelpOpen}
-              >
-                <HelpOutline />
-              </IconButton>
-              <Dialog
-                onClose={handleHelpClose}
-                aria-labelledby="simple-dialog-title"
-                open={helpOpen}
-              >
-                <DialogTitle id="simple-dialog-title">Wat Do?</DialogTitle>
-                <DialogContent dividers>
-                  <Typography gutterBottom>
-                    1. <strong>Select</strong> piece of gear that you want to
-                    generate lines for in <strong>dropdown</strong>
-                  </Typography>
-                  <Typography gutterBottom>
-                    2. <strong>Enter</strong> the value of the lines
-                  </Typography>
-                  <Typography gutterBottom>
-                    3. <strong>Select</strong> the type of lines
-                  </Typography>
-                  <Typography gutterBottom>
-                    4. You can filter <strong>up to 2 stats</strong> at once.
-                    eg. BOSS 60 + ATK 9 outputs line combinations with {">"}=
-                    60% BOSS % 9 ATK
-                  </Typography>
-                </DialogContent>
-              </Dialog>
-            </Paper>
-          </AccordionSummary>
-        ) : (
-          <AccordionSummary
-            aria-label="Expand"
-            aria-controls="additional-actions1-content"
-            id="additional-actions1-header"
-          >
-            <Paper
-              elevation={2}
-              aria-label="Acknowledge"
-              onClick={(event) => event.stopPropagation()}
-              onFocus={(event) => event.stopPropagation()}
-            >
-              <Autocomplete
-                id="grouped-demo"
-                inputValue={inputValue}
-                onInputChange={(event, newInputValue) => {
-                  newInputValue === "" ? setExpanded(false) : setExpanded(true);
-                  setInputValue(newInputValue);
-                  updateLineOptions(newInputValue);
-                  clearRows();
-                }}
-                options={gearOptions.sort(
-                  (a, b) => -b.type.localeCompare(a.type)
-                )}
-                groupBy={(option) => option.type}
-                getOptionLabel={(option) => option.title}
-                style={{ width: 300 }}
-                renderInput={(params) => (
-                  <TextField {...params} label="Gear" variant="outlined" />
-                )}
-              />
-
-              <Typography padding="10px" align="center">
-                <p></p>
-                {`I want a combination of`}
-                &nbsp;
-              </Typography>
-              <TextField
-                id="outlined-basic"
-                label="At Least (?) %"
-                variant="outlined"
-                type="number"
-                //value={xOneInputValue}
-                onChange={(e) => {
-                  setXOneInputValue(safeParseInt(e.target.value));
-                  clearRows();
-                }}
-                style={{ width: 300, fullWidth: true }}
-              />
-              <p></p>
-              <Autocomplete
-                id="Line"
-                inputValue={typeOneInputValue}
-                onInputChange={(event, newInputValue) => {
-                  setTypeOneInputValue(newInputValue);
-                  clearRows();
-                }}
-                options={typeOptions}
-                getOptionLabel={(option) => option.type}
-                style={{ width: 300, fullWidth: true }}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Desired Line Type"
-                    variant="outlined"
-                  />
-                )}
-              />
-              <p></p>
-              <IconButton
-                onClick={() => {
-                  clearRows();
-                  addIfMoreThanStat(
-                    xOneInputValue,
-                    typeOneInputValue,
-                    xTwoInputValue,
-                    typeTwoInputValue
-                  );
-                  calcAllCubeProbabilities(
-                    xOneInputValue,
-                    typeOneInputValue,
-                    xTwoInputValue,
-                    typeTwoInputValue
-                  );
-                }}
-                color="primary"
-                aria-label="Do the magic"
-                align="right"
-              >
-                <Box>
-                  <Typography>{"Calculate"}</Typography>
+            <Container className={classes.container}>
+              <Box style={{ width: "50%" }}>
+                <Autocomplete
+                  id="grouped-demo"
+                  inputValue={inputValue}
+                  onInputChange={(event, newInputValue) => {
+                    newInputValue === ""
+                      ? setExpanded(false)
+                      : setExpanded(true);
+                    setInputValue(newInputValue);
+                    updateLineOptions(newInputValue);
+                    clearRows();
+                  }}
+                  options={gearOptions.sort(
+                    (a, b) => -b.type.localeCompare(a.type)
+                  )}
+                  groupBy={(option) => option.type}
+                  getOptionLabel={(option) => option.title}
+                  fullWidth
+                  style={{
+                    marginBottom: "10px",
+                    // width: "50%",
+                    // alignSelf: "flex-start",
+                  }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Gear" variant="outlined" />
+                  )}
+                />
+              </Box>
+              <Box style={{ width: "50%" }}>
+                {inputValue === "Glove" ? (
+                  <Grid
+                    container
+                    justify="space-around"
+                    alignContent="space-around"
+                  >
+                    <Grid item xs={5}>
+                      <Paper className={classes.paper}>
+                        16% Crit -&gt; 1 in 43 Equality
+                      </Paper>
+                    </Grid>
+                    <Grid item xs={5}>
+                      <Paper className={classes.paper}>
+                        24% Crit -&gt; 1 in 1331 Equality
+                      </Paper>
+                    </Grid>
+                  </Grid>
+                ) : // </Box>
+                inputValue === "Hat" ? (
+                  // <Box style={{ width: "50%" }}>
+                  <Grid
+                    container
+                    justify="space-around"
+                    alignContent="space-around"
+                  >
+                    <Grid item xs={5}>
+                      <Paper className={classes.paper}>
+                        At least 3s CDR -&gt; 1 in 45 Equality
+                      </Paper>
+                    </Grid>
+                    <Grid item xs={5}>
+                      <Paper className={classes.paper}>
+                        At least 4s CDR -&gt; 1 in 158 Equality
+                      </Paper>
+                    </Grid>
+                  </Grid>
+                ) : null}
+              </Box>
+            </Container>
+            <Container className={classes.container}>
+              {inputValue === "" ? (
+                <Box style={{ width: "50%" }}>
+                  <Button
+                    onClick={handleHelpOpen}
+                    color="primary"
+                    size="large"
+                    fullWidth
+                    // style={{ width: "50%", alignSelf: "flex-start" }}
+                  >
+                    <HelpOutline />
+                  </Button>
+                  <Dialog
+                    onClose={handleHelpClose}
+                    aria-labelledby="simple-dialog-title"
+                    open={helpOpen}
+                  >
+                    <DialogTitle id="simple-dialog-title">Wat Do?</DialogTitle>
+                    <DialogContent dividers>
+                      <Typography gutterBottom>
+                        1. <strong>Select</strong> piece of gear that you want
+                        to generate lines for in <strong>dropdown</strong>
+                      </Typography>
+                      <Typography gutterBottom>
+                        2. <strong>Enter</strong> the value of the lines
+                      </Typography>
+                      <Typography gutterBottom>
+                        3. <strong>Select</strong> the type of lines
+                      </Typography>
+                      <Typography gutterBottom>
+                        4. You can filter <strong>up to 2 stats</strong> at
+                        once. eg. BOSS 60 + ATK 9 outputs line combinations with{" "}
+                        {">"}= 60% BOSS % 9 ATK
+                      </Typography>
+                    </DialogContent>
+                  </Dialog>
                 </Box>
-              </IconButton>
-            </Paper>
-            {xOneInputValue === 0 || typeOneInputValue === "" ? (
-              []
-            ) : (
-              <div>
-                <Paper style={{ position: "absolute", bottom: 68, left: 330 }}>
-                  <Box>
-                    <Typography padding="10px" align="center">
-                      {`as well as (leave blank if not required)`}
-                    </Typography>
-                    <TextField
-                      id="outlined-basic"
-                      label="At Least (?) %"
-                      variant="outlined"
-                      value={xTwoInputValue}
-                      onChange={(e) => {
-                        setXTwoInputValue(safeParseInt(e.target.value));
-                        clearRows();
-                      }}
-                      style={{ width: 300, fullWidth: true }}
-                    />
-                    <p></p>
-                    <Autocomplete
-                      id="Line"
-                      inputValue={typeTwoInputValue}
-                      onInputChange={(event, newInputValue) => {
-                        setTypeTwoInputValue(newInputValue);
-                        clearRows();
-                      }}
-                      options={typeOptionsTwo}
-                      getOptionLabel={(option) => option.type}
-                      style={{ width: 300, fullWidth: true }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Desired Line Type 2"
-                          variant="outlined"
-                        />
+              ) : (
+                <>
+                  <Container maxWidth="lg" className={classes.container}>
+                    <Box style={{ width: "50%" }}>
+                      <Typography align="center">
+                        {`I want a combination of`}
+                      </Typography>
+
+                      <TextField
+                        id="outlined-basic"
+                        label="At Least (?) %"
+                        variant="outlined"
+                        type="number"
+                        style={{ marginBottom: "10px" }}
+                        //value={xOneInputValue}
+                        onChange={(e) => {
+                          setXOneInputValue(safeParseInt(e.target.value));
+                          clearRows();
+                        }}
+                        fullWidth
+                      />
+
+                      <Autocomplete
+                        id="Line"
+                        inputValue={typeOneInputValue}
+                        onInputChange={(event, newInputValue) => {
+                          setTypeOneInputValue(newInputValue);
+                          clearRows();
+                        }}
+                        options={typeOptions}
+                        getOptionLabel={(option) => option.type}
+                        fullWidth
+                        style={{ marginBottom: "10px" }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Desired Line Type"
+                            variant="outlined"
+                          />
+                        )}
+                      />
+                    </Box>
+
+                    <Box style={{ width: "50%" }}>
+                      {xOneInputValue === 0 ||
+                      typeOneInputValue === "" ? null : (
+                        <>
+                          <Typography padding="10px" align="center">
+                            {`as well as (leave blank if not required)`}
+                          </Typography>
+
+                          <TextField
+                            id="outlined-basic"
+                            label="At Least (?) %"
+                            variant="outlined"
+                            value={xTwoInputValue}
+                            onChange={(e) => {
+                              setXTwoInputValue(safeParseInt(e.target.value));
+                              clearRows();
+                            }}
+                            className={classes.buffer}
+                            fullWidth
+                          />
+
+                          <Autocomplete
+                            id="Line"
+                            inputValue={typeTwoInputValue}
+                            onInputChange={(event, newInputValue) => {
+                              setTypeTwoInputValue(newInputValue);
+                              clearRows();
+                            }}
+                            options={typeOptionsTwo}
+                            getOptionLabel={(option) => option.type}
+                            fullWidth
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Desired Line Type 2"
+                                variant="outlined"
+                              />
+                            )}
+                          />
+                        </>
                       )}
-                    />
-                    <p></p>
+                    </Box>
+                  </Container>
+                  <Box style={{ width: "50%" }}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      size="large"
+                      style={{ marginTop: "10px" }}
+                      fullWidth
+                      onClick={() => {
+                        clearRows();
+                        addIfMoreThanStat(
+                          xOneInputValue,
+                          typeOneInputValue,
+                          xTwoInputValue,
+                          typeTwoInputValue
+                        );
+                        calcAllCubeProbabilities(
+                          xOneInputValue,
+                          typeOneInputValue,
+                          xTwoInputValue,
+                          typeTwoInputValue
+                        );
+                      }}
+                    >
+                      Calculate
+                    </Button>
                   </Box>
-                </Paper>
-                <Paper style={{ position: "absolute", bottom: 115, left: 330 }}>
-                  <Box>
-                    {/* {both ?
-                      <Button color="primary" onClick={() => setBoth(false)}>
-                        <Typography padding="10px" align="center">
-                          {'AND'}
-                        </Typography>
-                      </Button>
-                      :
-                      <Button color="primary" onClick={() => setBoth(true)}>
-                        <Typography padding="10px" align="center">
-                          {'OR'}
-                        </Typography>
-                      </Button>
-                    } */}
-                  </Box>
-                </Paper>
-              </div>
-            )}
-            <Paper style={{ padding: 10 }}>
-              <Grid container spacing={1}>
-                <Grid item xs={3}>
-                  <Paper className={classes.paper}>
-                    16% Crit -{">"} 1 in 43 Equality
-                  </Paper>
-                </Grid>
-                <Grid item xs={3}>
-                  <Paper className={classes.paper}>
-                    24% Crit -{">"} 1 in 1331 Equality
-                  </Paper>
-                </Grid>
-                <Grid item xs={3}>
-                  <Paper className={classes.paper}>
-                    At least 3s CDR -{">"} 1 in 45 Equality
-                  </Paper>
-                </Grid>
-                <Grid item xs={3}>
-                  <Paper className={classes.paper}>
-                    At least 4s CDR -{">"} 1 in 158 Equality
-                  </Paper>
-                </Grid>
-              </Grid>
-            </Paper>
-          </AccordionSummary>
-        )}
+                </>
+              )}
+            </Container>
+          </Paper>
+        </AccordionSummary>
       </Accordion>
 
       <Paper elevation={2} className="container">
         <TableContainer component={Paper}>
-          <Grid container justify="left">
-            <Grid item xs={12} sm={8} md={6}>
-              <Table className={classes.table} style={{ width: "100%" }}>
+          <Grid container justify="center" style={{ marginTop: "10px" }}>
+            <Grid style={{ border: "1px solid black" }}>
+              <Table className={classes.table}>
                 <TableHead>
                   <TableRow>
                     <TableCell align="center">Cube Type</TableCell>
                     <TableCell align="center">
-                      Probability %{" "}
-                      <span style={{ color: "red", fontWeight: "bold" }}>
-                        (old)
-                      </span>
+                      <div>Probability&nbsp;(%)</div>
+                      <div>
+                        <span style={{ color: "magenta", fontWeight: "bold" }}>
+                          (Updated)
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell align="center">
-                      Probability{" "}
-                      <span style={{ color: "red", fontWeight: "bold" }}>
-                        (old)
-                      </span>
+                      <div>Probability&nbsp;(1&nbsp;in&nbsp;x)</div>
+                      <div>
+                        <span style={{ color: "magenta", fontWeight: "bold" }}>
+                          (Updated)
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell align="center">
-                      <span style={{ color: "magenta", fontWeight: "bold" }}>
-                        Updated Probability
-                      </span>
+                      <div>Probability&nbsp;(1&nbsp;in&nbsp;x)</div>
+                      <div>
+                        <span style={{ color: "red", fontWeight: "bold" }}>
+                          (Old)
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell align="center">
+                      <div>Probability&nbsp;(%){"\n"}</div>
+                      <div>
+                        <span style={{ color: "red", fontWeight: "bold" }}>
+                          (Old)
+                        </span>
+                      </div>
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -1552,12 +1578,9 @@ export default function PotentialTable() {
                         <img height="25px" src={redCubeIcon} />
                       </div>
                     </TableCell>
-                    <TableCell align="center">{`${
-                      getTotalRedPercentages() * 100
-                    } %`}</TableCell>
-                    <TableCell align="center">{`One in ${Math.round(
-                      1 / getTotalRedPercentages()
-                    ).toLocaleString()} red cubes`}</TableCell>
+                    <TableCell align="center">
+                      {(redProbability * 100).toPrecision(5)}&nbsp;%
+                    </TableCell>
                     <TableCell align="center">
                       One in{" "}
                       {redCubeNumber !== 0 ? (
@@ -1567,6 +1590,12 @@ export default function PotentialTable() {
                       )}{" "}
                       cubes
                     </TableCell>
+                    <TableCell align="center">{`One in ${Math.round(
+                      1 / getTotalRedPercentages()
+                    ).toLocaleString()} red cubes`}</TableCell>
+                    <TableCell align="center">{`${
+                      getTotalRedPercentages() * 100
+                    } %`}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell align="center">
@@ -1577,16 +1606,13 @@ export default function PotentialTable() {
                           alignItems: "center",
                         }}
                       >
-                        <span>Black Cube</span>
+                        <span>Black&nbsp;Cube</span>
                         <img height="25px" src={blackCubeIcon} />
                       </div>
                     </TableCell>
-                    <TableCell align="center">{`${
-                      getTotalBlackPercentages() * 100
-                    } %`}</TableCell>
-                    <TableCell align="center">{`One in ${Math.round(
-                      1 / getTotalBlackPercentages()
-                    ).toLocaleString()} black cubes`}</TableCell>
+                    <TableCell align="center">
+                      {(blackProbability * 100).toPrecision(5)}&nbsp;%
+                    </TableCell>
                     <TableCell align="center">
                       One in{" "}
                       {blackCubeNumber !== 0 ? (
@@ -1596,6 +1622,12 @@ export default function PotentialTable() {
                       )}{" "}
                       cubes
                     </TableCell>
+                    <TableCell align="center">{`One in ${Math.round(
+                      1 / getTotalBlackPercentages()
+                    ).toLocaleString()} black cubes`}</TableCell>
+                    <TableCell align="center">{`${
+                      getTotalBlackPercentages() * 100
+                    } %`}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell align="center">
@@ -1606,16 +1638,13 @@ export default function PotentialTable() {
                           alignItems: "center",
                         }}
                       >
-                        <span>Equality Cube</span>
+                        <span>Equality&nbsp;Cube</span>
                         <img height="25px" src={equalityCubeIcon} />
                       </div>
                     </TableCell>
-                    <TableCell align="center">{`${
-                      getTotalEqualityPercentages() * 100
-                    } %`}</TableCell>
-                    <TableCell align="center">{`One in ${Math.round(
-                      1 / getTotalEqualityPercentages()
-                    ).toLocaleString()} equality cubes`}</TableCell>
+                    <TableCell align="center">
+                      {(equalityProbability * 100).toPrecision(5)}&nbsp;%
+                    </TableCell>
                     <TableCell align="center">
                       One in{" "}
                       {equalityCubeNumber !== 0 ? (
@@ -1625,6 +1654,12 @@ export default function PotentialTable() {
                       )}{" "}
                       cubes
                     </TableCell>
+                    <TableCell align="center">{`One in ${Math.round(
+                      1 / getTotalEqualityPercentages()
+                    ).toLocaleString()} equality cubes`}</TableCell>
+                    <TableCell align="center">{`${
+                      getTotalEqualityPercentages() * 100
+                    } %`}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell align="center">
@@ -1639,12 +1674,9 @@ export default function PotentialTable() {
                         <img height="25px" src={hexaCubeIcon} />
                       </div>
                     </TableCell>
-                    <TableCell align="center">{`${
-                      getTotalHexaPercentages() * 100
-                    } %`}</TableCell>
-                    <TableCell align="center">{`One in ${Math.round(
-                      1 / getTotalHexaPercentages()
-                    ).toLocaleString()} hexa cubes`}</TableCell>
+                    <TableCell align="center">
+                      {(hexaProbability * 100).toPrecision(5)}&nbsp;%
+                    </TableCell>
                     <TableCell align="center">
                       One in{" "}
                       {hexaCubeNumber !== 0 ? (
@@ -1654,12 +1686,18 @@ export default function PotentialTable() {
                       )}{" "}
                       cubes
                     </TableCell>
+                    <TableCell align="center">{`One in ${Math.round(
+                      1 / getTotalHexaPercentages()
+                    ).toLocaleString()} hexa cubes`}</TableCell>
+                    <TableCell align="center">{`${
+                      getTotalHexaPercentages() * 100
+                    } %`}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
             </Grid>
           </Grid>
-          <Grid container justify="left" style={{ marginTop: "20px" }}>
+          <Grid container justify="flex-start" style={{ marginTop: "20px" }}>
             <Grid item xs={12} sm={8} md={6}>
               <Table className={classes.table} aria-label="spanning table">
                 <TableHead>
@@ -1699,7 +1737,7 @@ export default function PotentialTable() {
                         <Grid item>
                           <img src={equalityCubeIcon} alt="Red Cube" />
                         </Grid>
-                        <Grid item>Equality (%)</Grid>
+                        <Grid item>Equality&nbsp;(%)</Grid>
                       </Grid>
                     </TableCell>
                     <TableCell align="center">
@@ -1763,7 +1801,7 @@ export default function PotentialTable() {
           3. Hexacube numbers might are slightly over estimate since it does not
           account for combinations without the first line.
         </Typography>
-        <WhiteTextTypography color="FFFFFF">
+        <WhiteTextTypography color="textPrimary">
           This coding project is a prime example of why you need UI/UX designers
           and why I do backend
         </WhiteTextTypography>
