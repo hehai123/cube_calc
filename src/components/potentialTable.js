@@ -31,6 +31,7 @@ import {
   DoubleArrow,
   HelpOutline,
   FastForward,
+  LineStyle,
 } from "@material-ui/icons";
 import {
   hatLines,
@@ -93,6 +94,8 @@ import hexaCubeIcon from "./icons/hexa_clean.png";
 import { display } from "@material-ui/system";
 
 //CSS
+const DECIMAL_PRECISION = 6; // for % display
+const CUBE_DECIMAL = 2; // for one in x cubes display
 const useStyles = makeStyles((theme) => ({
   avatar: {
     width: theme.spacing(15),
@@ -219,6 +222,11 @@ export default function PotentialTable() {
   const [typeOptionsTwo, setTypeOptionsTwo] = React.useState([]);
   const [checkSecondCriterion, setCheckSecondCombination] = useState(false);
 
+  const [legendLineOp, setLegendLineOp] = useState([]);
+  const [uniqueLineOp, setUniqueLineOp] = useState([]);
+  const [acceptAS1, setAcceptAS1] = useState(false);
+  const [acceptAS2, setAcceptAS2] = useState(false);
+
   //line percentages
   const [lineOneRedPercentage, setLineOneRedPercentage] = React.useState(0);
   const [lineOneBlackPercentage, setLineOneBlackPercentage] = React.useState(0);
@@ -245,14 +253,7 @@ export default function PotentialTable() {
   const [curEqualityPercentage, setCurEqualityPercentage] = React.useState(0);
   const [curHexaPercentage, setCurHexaPercentage] = React.useState(0);
 
-  const [legendLineOptions, setLegendLineOptions] = useState([]);
-  // const [uniqueLineOptions, setUniqueLineOptions] = useState([]);
-  const [redSecondLineOptions, setRedSecondLineOptions] = useState([]);
-  const [redThirdLineOptions, setRedThirdLineOptions] = useState([]);
-  const [blackSecondLineOptions, setBlackSecondLineOptions] = useState([]);
-  const [blackThirdLineOptions, setBlackThirdLineOptions] = useState([]);
-
-  // Final probability calculated
+  // Final probability calculated by hehai
   const [hexaProbability, setHexaProbability] = useState(0);
   const [blackProbability, setBlackProbability] = useState(0);
   const [redProbability, setRedProbability] = useState(0);
@@ -285,57 +286,37 @@ export default function PotentialTable() {
   function updateLineOptions(title) {
     var curLines = [];
     var curSubLines = [];
-    var legendLines = [];
-    var uniqueLines = [];
-    const red2 = 10; // 1 in 10 chance of being a legendary line for red cube 2nd line
-    const red3 = 100; // 1 in 100 chance of being a legendary line for red cube 3rd line
-    const black2 = 5;
-    const black3 = 20;
 
     switch (title) {
       case "Hat":
         curLines = hatLines;
         curSubLines = hatSubLines;
-        legendLines = legendHatLines;
-        uniqueLines = uniqueHatLines;
         break;
       case "Top":
         curLines = topLines;
         curSubLines = topSubLines;
-        legendLines = legendTopLines;
-        uniqueLines = uniqueTopLines;
         break;
       case "Bottom":
         curLines = bottomLines;
         curSubLines = bottomShoeSubLines;
-        legendLines = legendBottomLines;
-        uniqueLines = uniquebottomShoeLines;
         break;
       case "Overall":
         curLines = topLines;
         curSubLines = topSubLines;
-        legendLines = legendTopLines;
-        uniqueLines = uniqueTopLines;
         break;
       case "Shoe":
         curLines = shoeLines;
         curSubLines = bottomShoeSubLines;
-        legendLines = legendShoeLines;
-        uniqueLines = uniquebottomShoeLines;
         break;
       case "Glove":
         curLines = gloveLines;
         curSubLines = gloveSubLines;
-        legendLines = legendGloveLines;
-        uniqueLines = uniqueGloveLines;
         break;
       case "Cape":
       case "Shoulder":
       case "Belt":
         curLines = capeShoulderBeltLines;
         curSubLines = capeShoulderBeltSubLines;
-        legendLines = legendCapeShoulderBeltLines;
-        uniqueLines = uniqueCapeShoulderBeltLines;
         break;
       case "Ring":
       case "Earring":
@@ -344,37 +325,26 @@ export default function PotentialTable() {
       case "Eye":
         curLines = accessoryLines;
         curSubLines = accessorySubLines;
-        legendLines = legendAccessoryLines;
-        uniqueLines = uniqueAccessoryLines;
         break;
       case "Heart":
         curLines = heartLines;
-        // curSubLines = heartSubLines;
         curSubLines = accessorySubLines;
-        legendLines = legendHeartLines;
-        uniqueLines = uniqueAccessoryLines;
+        // curSubLines = heartSubLines;
         break;
       case "Weapon":
         curLines = weaponLines;
         curSubLines = weaponSubLines;
-        legendLines = legendWeaponLines;
-        uniqueLines = uniqueWeaponLines;
         break;
       case "Secondary":
         curLines = secondaryLines;
         curSubLines = secondarySubLines;
-        legendLines = legendSecondaryLines;
-        uniqueLines = uniqueSecondaryLines;
         break;
       case "Emblem":
         curLines = emblemLines;
         curSubLines = emblemSubLines;
-        legendLines = legendEmblemLines;
-        uniqueLines = uniqueEmblemLines;
         break;
       default:
         curLines = hatLines;
-        legendLines = legendHatLines;
         break;
     }
 
@@ -431,95 +401,6 @@ export default function PotentialTable() {
         };
       })
     );
-
-    const totalLegendWeight = legendLines.reduce(
-      (total, item) => total + item.weight,
-      0
-    );
-    setLegendLineOptions(
-      legendLines.map((option) => {
-        const stat = option.stat;
-        const weight = option.weight;
-        const type = option.type;
-        const value = option.value;
-
-        return {
-          stat: stat,
-          type: type,
-          value: value,
-          weight: weight,
-          totalWeight: totalLegendWeight,
-          // ...option,
-        };
-      })
-    );
-
-    const totalUniqueWeight = uniqueLines.reduce(
-      (total, item) => total + item.weight,
-      0
-    );
-
-    const black2LegendLines = legendLines.map((option) => ({
-      ...option,
-      totalWeight: totalLegendWeight * black2,
-    }));
-    const black2UniqueLines = uniqueLines.map((option) => ({
-      ...option,
-      weight: option.weight * (black2 - 1),
-      totalWeight: totalUniqueWeight * black2,
-    }));
-
-    const black3LegendLines = legendLines.map((option) => ({
-      ...option,
-      totalWeight: totalLegendWeight * black3,
-    }));
-    const black3UniqueLines = uniqueLines.map((option) => ({
-      ...option,
-      weight: option.weight * (black3 - 1),
-      totalWeight: totalUniqueWeight * black3,
-    }));
-
-    const red2LegendLines = legendLines.map((option) => ({
-      ...option,
-      totalWeight: totalLegendWeight * red2,
-    }));
-    const red2UniqueLines = uniqueLines.map((option) => ({
-      ...option,
-      weight: option.weight * (red2 - 1),
-      totalWeight: totalUniqueWeight * red2,
-    }));
-
-    const red3LegendLines = legendLines.map((option) => ({
-      ...option,
-      totalWeight: totalLegendWeight * red3,
-    }));
-    const red3UniqueLines = uniqueLines.map((option) => ({
-      ...option,
-      weight: option.weight * (red3 - 1),
-      totalWeight: totalUniqueWeight * red3,
-    }));
-
-    setBlackSecondLineOptions(black2LegendLines.concat(black2UniqueLines));
-    setBlackThirdLineOptions(black3LegendLines.concat(black3UniqueLines));
-    setRedSecondLineOptions(red2LegendLines.concat(red2UniqueLines));
-    setRedThirdLineOptions(red3LegendLines.concat(red3UniqueLines));
-    // setUniqueLineOptions(
-    //   legendLines.concat(uniqueLines).map((option) => {
-    //     const stat = option.stat;
-    //     const weight = option.weight;
-    //     const type = option.type;
-    //     const value = option.value;
-
-    //     return {
-    //       stat: stat,
-    //       type: type,
-    //       value: value,
-    //       weight: weight,
-    //       totalWeight: totalUniqueWeight,
-    //       // ...option,
-    //     };
-    //   })
-    // );
 
     let types = curLines.concat(curSubLines).map((option) => {
       const type = option.type;
@@ -588,140 +469,9 @@ export default function PotentialTable() {
   }
 
   //============================================================= July 2023 ================================================================
-  // Handles probability together with 4th, 5th and 6th line
-  const hexaNext3LinesProbCalc = (
-    x1,
-    type1,
-    x2,
-    type2,
-    acceptAllStat1,
-    acceptAllStat2,
-    data,
-    line1,
-    line2,
-    line3
-  ) => {
-    let totalProbability = 0;
-    let selectedLine = [false, false, false];
-    let tempLines = [];
-    const probability =
-      (line1.weight * line2.weight * line3.weight) /
-      (line1.totalWeight * line2.totalWeight * line3.totalWeight);
-
-    if (line1.type === type1 || (line1.type === "AS" && acceptAllStat1)) {
-      tempLines.push({ value: line1.value, type: line1.type });
-      selectedLine[0] = true;
-    }
-    if (line2.type === type1 || (line2.type === "AS" && acceptAllStat1)) {
-      tempLines.push({ value: line2.value, type: line2.type });
-      selectedLine[1] = true;
-    }
-    if (line3.type === type1 || (line3.type === "AS" && acceptAllStat1)) {
-      tempLines.push({ value: line3.value, type: line3.type });
-      selectedLine[2] = true;
-    }
-
-    if (checkSecondCriterion) {
-      if (line1.type === type2 || (line1.type === "AS" && acceptAllStat2)) {
-        if (!selectedLine[0]) {
-          tempLines.push({ value: line1.value, type: line1.type });
-          selectedLine[0] = true;
-        }
-      }
-      if (line2.type === type2 || (line2.type === "AS" && acceptAllStat2)) {
-        if (!selectedLine[1]) {
-          tempLines.push({ value: line2.value, type: line2.type });
-          selectedLine[1] = true;
-        }
-      }
-      if (line3.type === type2 || (line3.type === "AS" && acceptAllStat2)) {
-        if (!selectedLine[2]) {
-          tempLines.push({ value: line3.value, type: line3.type });
-          selectedLine[2] = true;
-        }
-      }
-    }
-
-    for (const [key, value] of Object.entries(data)) {
-      // let lineComponents = key.split(", ");
-      // let lines = lineComponents.map((component) => {
-      //   let [value, type] = component.split(" ");
-      //   return { value: parseInt(value), type: type };
-      // });
-      const lineComponents = key.split(", ");
-      let lines = lineComponents.map((component) => {
-        let [value, ...typeParts] = component.split(" ");
-        let type = typeParts.join(" ").trim();
-        return { value: parseInt(value), type: type };
-      });
-
-      lines = lines.concat(tempLines);
-      let bossLinesCount = 0;
-      for (const line of lines) {
-        if (line.type === "BOSS") bossLinesCount += 1;
-      }
-      if (bossLinesCount > 2) continue;
-
-      lineSorter(lines);
-
-      let sum = 0;
-      let sum2 = 0;
-      let linesSelected = 0;
-      let selectableLines = [];
-
-      for (let i = 0; i < lines.length; i++) {
-        if (linesSelected >= 3 || sum >= x1) {
-          selectableLines.push(i);
-          continue;
-        }
-
-        const line = lines[i];
-        if (line.type === type1 || (line.type === "AS" && acceptAllStat1)) {
-          sum += line.value;
-          linesSelected += 1;
-          if (line.type === type2 || (line.type === "AS" && acceptAllStat2)) {
-            sum2 += line.value;
-          }
-        } else {
-          selectableLines.push(i);
-        }
-      }
-
-      if (!checkSecondCriterion) {
-        if (linesSelected <= 3 && sum >= x1) {
-          totalProbability += value * probability;
-        }
-      } else {
-        if (linesSelected === 3) {
-          if (sum >= x1 && sum2 >= x2) {
-            totalProbability += value * probability;
-          }
-        } else {
-          for (const index of selectableLines) {
-            const line = lines[index];
-
-            if (line.type === type2 || (line.type === "AS" && acceptAllStat2)) {
-              sum2 += line.value;
-              linesSelected += 1;
-              if (
-                line.type === type1 ||
-                (line.type === "AS" && acceptAllStat1)
-              ) {
-                sum += line.value;
-              }
-            }
-
-            if (linesSelected >= 3) break;
-          }
-
-          if (sum >= x1 && sum2 >= x2) {
-            totalProbability += value * probability;
-          }
-        }
-      }
-    }
-
-    return totalProbability;
+  // For one in x cubes formatting
+  const formatNumberWithCommas = (number) => {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
   // Sort the array of lines by descedning value and type
@@ -764,349 +514,699 @@ export default function PotentialTable() {
     return keyFormat;
   };
 
-  // Calculates hexa probability, also calculate red cube probability
-  const hexaAndRedProbCalc = (x1, type1, x2, type2) => {
-    let acceptAllStat1 = false;
-    let acceptAllStat2 = false;
-    let totalHexaProbability = 0;
-    // let checkSecondCriterion = false;
-    let data = {};
+  const lineWeightSum = (line) => {
+    return line.reduce((total, item) => total + item.weight, 0);
+  };
 
-    if (
-      type1 === "STR" ||
-      type1 === "DEX" ||
-      type1 === "INT" ||
-      type1 === "LUK"
-    ) {
-      acceptAllStat1 = true;
+  const usefulLineWeightSum = (line, filteredArray) => {
+    return line.reduce((accumulator, line) => {
+      if (!checkSecondCriterion) {
+        if (
+          line.type === typeOneInputValue ||
+          (line.type === "AS" && acceptAS1) ||
+          filteredArray.includes(line.type)
+        ) {
+          return accumulator + line.weight;
+        }
+      } else if (checkSecondCriterion) {
+        if (
+          line.type === typeOneInputValue ||
+          line.type === typeTwoInputValue ||
+          (line.type === "AS" && (acceptAS1 || acceptAS2)) ||
+          filteredArray.includes(line.type)
+        ) {
+          return accumulator + line.weight;
+        }
+      }
+      return accumulator;
+    }, 0);
+  };
+
+  const lineCounter = (array, type) => {
+    return array.reduce((accumulator, line) => {
+      if (line === type) {
+        return accumulator + 1;
+      } else {
+        return accumulator;
+      }
+    }, 0);
+  };
+
+  const potentialLineFormat = (array, cubeType, lineNumber) => {
+    const tempLines = [];
+    const tempLines2 = [];
+    const mappedLines = [];
+    const red2 = 10; // 1 in 10 chance of being a legendary line for red cube 2nd line
+    const red3 = 100; // 1 in 100 chance of being a legendary line for red cube 3rd line
+    const black2 = 5;
+    const black3 = 20;
+    const specialLines = [
+      "DR",
+      "IED",
+      "BOSS",
+      "Decent Skill",
+      "Invincibility Time",
+      "Chance to Ignore DMG",
+      "Chance of being invincibile",
+    ];
+    const specialLinesFiltered = [
+      "DR",
+      "IED",
+      "BOSS",
+      "Decent Skill",
+      "Invincibility Time",
+      "Chance to Ignore DMG",
+      "Chance of being invincibile",
+    ];
+    const specialLinesToRemove = [];
+
+    const dRCount = lineCounter(array, "DR");
+    const iedCount = lineCounter(array, "IED");
+    const bossCount = lineCounter(array, "BOSS");
+    const decentCount = lineCounter(array, "Decent Skill");
+    const invincibilityCount = lineCounter(array, "Invincibility Time");
+    const ignoreCount = lineCounter(array, "Chance to Ignore DMG");
+    const invincibileCount = lineCounter(array, "Chance of being invincibile");
+
+    if (decentCount === 1) {
+      specialLinesFiltered.splice(
+        specialLinesFiltered.indexOf("Decent Skill"),
+        1
+      );
+      specialLinesToRemove.push("Decent Skill");
     }
-    if (
-      type2 === "STR" ||
-      type2 === "DEX" ||
-      type2 === "INT" ||
-      type2 === "LUK"
-    ) {
-      acceptAllStat2 = true;
+    if (dRCount === 2) {
+      specialLinesFiltered.splice(specialLinesFiltered.indexOf("DR"), 1);
+      specialLinesToRemove.push("DR");
+    }
+    if (iedCount === 2) {
+      specialLinesFiltered.splice(specialLinesFiltered.indexOf("IED"), 1);
+      specialLinesToRemove.push("IED");
+    }
+    if (bossCount === 2) {
+      specialLinesFiltered.splice(specialLinesFiltered.indexOf("BOSS"), 1);
+      specialLinesToRemove.push("BOSS");
+    }
+    if (invincibilityCount === 1) {
+      specialLinesFiltered.splice(
+        specialLinesFiltered.indexOf("Invincibility Time"),
+        1
+      );
+      specialLinesToRemove.push("Invincibility Time");
+    }
+    if (ignoreCount === 2) {
+      specialLinesFiltered.splice(
+        specialLinesFiltered.indexOf("Chance to Ignore DMG"),
+        1
+      );
+      specialLinesToRemove.push("Chance to Ignore DMG");
+    }
+    if (invincibileCount === 2) {
+      specialLinesFiltered.splice(
+        specialLinesFiltered.indexOf("Chance of being invincibile"),
+        1
+      );
+      specialLinesToRemove.push("Chance of being invincibile");
     }
 
-    // if (x2 !== "" && type2 !== "") {
-    //   checkSecondCriterion = true;
-    // } else {
-    //   checkSecondCriterion = false;
-    // }
+    // Remove line options if option limit is reached
+    legendLineOp.forEach((line) => {
+      if (specialLinesToRemove.includes(line.type)) {
+        return;
+      }
+      tempLines.push({ ...line });
+    });
 
-    for (const line1 of legendLineOptions) {
-      for (const line2 of redSecondLineOptions) {
-        for (const line3 of redThirdLineOptions) {
+    if (lineNumber === 2 || lineNumber === 3) {
+      uniqueLineOp.forEach((line) => {
+        if (specialLinesToRemove.includes(line.type)) {
+          return;
+        }
+        tempLines2.push({ ...line });
+      });
+    }
+
+    const totalWeights = lineWeightSum(tempLines);
+    const usefulWeight = usefulLineWeightSum(tempLines, specialLinesFiltered);
+    const totalWeights2 = lineWeightSum(tempLines2);
+    const usefulWeight2 = usefulLineWeightSum(tempLines2, specialLinesFiltered);
+
+    // Make a list of useful lines to check for
+    // Example: str, dex, int, luk, hp, mp, def becomes only str and junk if filtered for str
+    // Legend line options
+    tempLines.forEach((line) => {
+      if (
+        (!checkSecondCriterion &&
+          (line.type === typeOneInputValue ||
+            (line.type === "AS" && acceptAS1) ||
+            specialLines.includes(line.type))) ||
+        (checkSecondCriterion &&
+          (line.type === typeOneInputValue ||
+            line.type === typeTwoInputValue ||
+            (line.type === "AS" && (acceptAS1 || acceptAS2)) ||
+            specialLines.includes(line.type)))
+      ) {
+        if (lineNumber === 1) {
+          mappedLines.push({ ...line, totalWeight: totalWeights });
+        } else if (lineNumber === 2) {
+          if (cubeType === "Red") {
+            mappedLines.push({ ...line, totalWeight: totalWeights * red2 });
+          } else if (cubeType === "Black") {
+            mappedLines.push({ ...line, totalWeight: totalWeights * black2 });
+          }
+        } else if (lineNumber === 3) {
+          if (cubeType === "Red") {
+            mappedLines.push({ ...line, totalWeight: totalWeights * red3 });
+          } else if (cubeType === "Black") {
+            mappedLines.push({ ...line, totalWeight: totalWeights * black3 });
+          }
+        }
+      }
+    });
+
+    // Unique line options
+    if (lineNumber !== 1) {
+      tempLines2.forEach((line) => {
+        if (!checkSecondCriterion) {
           if (
-            line1.type === "BOSS" &&
-            line2.type === "BOSS" &&
-            line3.type === "BOSS"
-          )
-            continue;
-
-          let sum = 0;
-          let sum2 = 0;
-          let selectedLine = [false, false, false];
-
-          const probability =
-            (line1.weight * line2.weight * line3.weight) /
-            (line1.totalWeight * line2.totalWeight * line3.totalWeight);
-
-          if (line1.type === type1 || (line1.type === "AS" && acceptAllStat1)) {
-            sum += line1.value;
-            selectedLine[0] = true;
-          }
-          if (line2.type === type1 || (line2.type === "AS" && acceptAllStat1)) {
-            sum += line2.value;
-            selectedLine[1] = true;
-          }
-          if (line3.type === type1 || (line3.type === "AS" && acceptAllStat1)) {
-            sum += line3.value;
-            selectedLine[2] = true;
-          }
-
-          if (checkSecondCriterion) {
-            if (
-              line1.type === type2 ||
-              (line1.type === "AS" && acceptAllStat2)
-            ) {
-              sum2 += line1.value;
-              selectedLine[0] = true;
-            }
-            if (
-              line2.type === type2 ||
-              (line2.type === "AS" && acceptAllStat2)
-            ) {
-              sum2 += line2.value;
-              selectedLine[1] = true;
-            }
-            if (
-              line3.type === type2 ||
-              (line3.type === "AS" && acceptAllStat2)
-            ) {
-              sum2 += line3.value;
-              selectedLine[2] = true;
-            }
-          }
-
-          if (
-            (!checkSecondCriterion && sum >= x1) ||
-            (checkSecondCriterion && sum >= x1 && sum2 >= x2)
+            line.type === typeOneInputValue ||
+            (line.type === "AS" && acceptAS1) ||
+            specialLines.includes(line.type)
           ) {
-            totalHexaProbability += probability;
-          } else {
-            let keyArray = [];
-            if (selectedLine[0]) {
-              keyArray.push(line1.value.toString() + " " + line1.type);
+            if (lineNumber === 2) {
+              if (cubeType === "Red") {
+                mappedLines.push({
+                  ...line,
+                  weight: line.weight * (red2 - 1),
+                  totalWeight: totalWeights2 * red2,
+                });
+              } else if (cubeType === "Black") {
+                mappedLines.push({
+                  ...line,
+                  weight: line.weight * (black2 - 1),
+                  totalWeight: totalWeights2 * black2,
+                });
+              }
+            } else if (lineNumber === 3) {
+              if (cubeType === "Red") {
+                mappedLines.push({
+                  ...line,
+                  weight: line.weight * (red3 - 1),
+                  totalWeight: totalWeights2 * red3,
+                });
+              } else if (cubeType === "Black") {
+                mappedLines.push({
+                  ...line,
+                  weight: line.weight * (black3 - 1),
+                  totalWeight: totalWeights2 * black3,
+                });
+              }
             }
-            if (selectedLine[1]) {
-              keyArray.push(line2.value.toString() + " " + line2.type);
-            }
-            if (selectedLine[2]) {
-              keyArray.push(line3.value.toString() + " " + line3.type);
-            }
-            keySorter(keyArray); // Sort the keys in a specific way
-            let key = keyArray.join(", ");
-
-            if (key in data) {
-              data[key] += probability;
-            } else {
-              data[key] = probability;
+          } else if (checkSecondCriterion) {
+            if (
+              line.type === typeOneInputValue ||
+              line.type === typeTwoInputValue ||
+              (line.type === "AS" && (acceptAS1 || acceptAS2)) ||
+              specialLines.includes(line.type)
+            ) {
+              if (lineNumber === 2) {
+                if (cubeType === "Red") {
+                  mappedLines.push({
+                    ...line,
+                    weight: line.weight * (red2 - 1),
+                    totalWeight: totalWeights2 * red2,
+                  });
+                } else if (cubeType === "Black") {
+                  mappedLines.push({
+                    ...line,
+                    weight: line.weight * (black2 - 1),
+                    totalWeight: totalWeights2 * black2,
+                  });
+                }
+              } else if (lineNumber === 3) {
+                if (cubeType === "Red") {
+                  mappedLines.push({
+                    ...line,
+                    weight: line.weight * (red3 - 1),
+                    totalWeight: totalWeights2 * red3,
+                  });
+                } else if (cubeType === "Black") {
+                  mappedLines.push({
+                    ...line,
+                    weight: line.weight * (black3 - 1),
+                    totalWeight: totalWeights2 * black3,
+                  });
+                }
+              }
             }
           }
         }
+      });
+    }
+
+    let junkWeight = 0;
+    let junkTotalWeight = 0;
+
+    if (lineNumber === 1) {
+      junkWeight = totalWeights - usefulWeight;
+      junkTotalWeight = totalWeights;
+    } else if (lineNumber === 2 || lineNumber === 3) {
+      let multiplier;
+      if (cubeType === "Red") {
+        if (lineNumber === 2) {
+          multiplier = red2;
+        } else multiplier = red3;
+      } else if (cubeType === "Black") {
+        if (lineNumber === 2) {
+          multiplier = black2;
+        } else multiplier = black3;
+      }
+
+      junkWeight =
+        (totalWeights - usefulWeight) * (totalWeights2 * multiplier) +
+        (totalWeights2 - usefulWeight2) *
+          (multiplier - 1) *
+          (totalWeights * multiplier);
+      junkTotalWeight = totalWeights * totalWeights2 * multiplier ** 2;
+    }
+
+    mappedLines.push({
+      // stat: "0",
+      // value: 0,
+      type: "Junk",
+      weight: junkWeight,
+      totalWeight: junkTotalWeight,
+    });
+
+    return mappedLines;
+  };
+
+  const cubeProbabiltyCalc = (line1, line2, line3) => {
+    let sumOne = 0;
+    let sumTwo = 0;
+
+    const probability =
+      (line1.weight * line2.weight * line3.weight) /
+      (line1.totalWeight * line2.totalWeight * line3.totalWeight);
+
+    const lines = [line1, line2, line3];
+
+    for (const line of lines) {
+      if (
+        line.type === typeOneInputValue ||
+        (line.type === "AS" && acceptAS1)
+      ) {
+        sumOne += line.value;
+      }
+      if (
+        checkSecondCriterion &&
+        (line.type === typeTwoInputValue || (line.type === "AS" && acceptAS2))
+      ) {
+        sumTwo += line.value;
       }
     }
 
-    for (const line1 of redSecondLineOptions) {
-      for (const line2 of redThirdLineOptions) {
-        for (const line3 of redThirdLineOptions) {
-          totalHexaProbability += hexaNext3LinesProbCalc(
-            x1,
-            type1,
-            x2,
-            type2,
-            acceptAllStat1,
-            acceptAllStat2,
-            data,
-            line1,
-            line2,
-            line3
-          );
+    if (checkSecondCriterion) {
+      if (sumOne >= xOneInputValue && sumTwo >= xTwoInputValue) {
+        return probability;
+      }
+    } else if (sumOne >= xOneInputValue) {
+      return probability;
+    }
+
+    return 0;
+  };
+
+  const hexaFirst3LinesCalc = (l1, l2, l3, dictionary) => {
+    let sum = 0;
+    let sum2 = 0;
+    let probability = 1;
+    let lines = [];
+    const specialLines = [
+      "DR",
+      "IED",
+      "BOSS",
+      "Decent Skill",
+      "Invincibility Time",
+      "Chance to Ignore DMG",
+      "Chance of being invincibile",
+    ];
+
+    for (let i = 1; i <= 3; i++) {
+      const currentLine = eval(`l${i}`);
+      // if (!currentLine) continue;
+
+      probability *= currentLine.weight / currentLine.totalWeight;
+      if (
+        currentLine.type === typeOneInputValue ||
+        (currentLine.type === "AS" && acceptAS1) ||
+        (checkSecondCriterion &&
+          (currentLine.type === typeTwoInputValue ||
+            (currentLine.type === "AS" && acceptAS2))) ||
+        specialLines.includes(currentLine.type)
+      ) {
+        lines.push({ value: currentLine.value, type: currentLine.type });
+      }
+    }
+
+    lineSorter(lines);
+
+    let linesSelected = 0;
+    let selectableLines = [];
+    for (let i = 0; i < lines.length; i++) {
+      if (linesSelected >= 3 || sum >= xOneInputValue) {
+        selectableLines.push(i);
+        continue;
+      }
+
+      const line = lines[i];
+      if (
+        line.type === typeOneInputValue ||
+        (line.type === "AS" && acceptAS1)
+      ) {
+        sum += line.value;
+        linesSelected += 1;
+        if (
+          line.type === typeTwoInputValue ||
+          (line.type === "AS" && acceptAS2)
+        ) {
+          sum2 += line.value;
+        }
+      } else {
+        selectableLines.push(i);
+      }
+    }
+
+    if (!checkSecondCriterion) {
+      if (linesSelected <= 3 && sum >= xOneInputValue) {
+        return probability;
+      }
+    } else {
+      if (linesSelected === 3) {
+        if (sum >= xOneInputValue && sum2 >= xTwoInputValue) {
+          return probability;
+        }
+      } else {
+        for (const index of selectableLines) {
+          const line = lines[index];
+
+          if (
+            line.type === typeTwoInputValue ||
+            (line.type === "AS" && acceptAS2)
+          ) {
+            sum2 += line.value;
+            linesSelected += 1;
+            if (
+              line.type === typeOneInputValue ||
+              (line.type === "AS" && acceptAS1)
+            ) {
+              sum += line.value;
+            }
+          }
+
+          if (linesSelected >= 3) break;
+        }
+
+        if (sum >= xOneInputValue && sum2 >= xTwoInputValue) {
+          return probability;
         }
       }
     }
 
-    let totalProbabilityInData = 0;
-    let count = 0;
+    let keyArray = [];
+    for (const line of lines) {
+      keyArray.push(line.value.toString() + " " + line.type);
+    }
+
+    keySorter(keyArray);
+    let key = keyArray.join(", ");
+    if (key in dictionary) {
+      dictionary[key] += probability;
+    } else {
+      dictionary[key] = probability;
+    }
+
+    return 0;
+  };
+
+  const hexaSingleLineCalc = (line, currentLines) => {
+    let sum = 0;
+    let sum2 = 0;
+    const addedLine = [];
+    let criteriaMet = false;
+
+    if (
+      line.type === typeOneInputValue ||
+      (line.type === "AS" && acceptAS1) ||
+      (checkSecondCriterion &&
+        (line.type === typeTwoInputValue || (line.type === "AS" && acceptAS2)))
+    ) {
+      currentLines.push({ value: line.value, type: line.type });
+      addedLine.push({ value: line.value, type: line.type });
+    }
+
+    lineSorter(currentLines);
+
+    let linesSelected = 0;
+    let selectableLines = [];
+    for (let i = 0; i < currentLines.length; i++) {
+      if (linesSelected >= 3 || sum >= xOneInputValue) {
+        selectableLines.push(i);
+        continue;
+      }
+
+      const line = currentLines[i];
+      if (
+        line.type === typeOneInputValue ||
+        (line.type === "AS" && acceptAS1)
+      ) {
+        sum += line.value;
+        linesSelected += 1;
+        if (
+          line.type === typeTwoInputValue ||
+          (line.type === "AS" && acceptAS2)
+        ) {
+          sum2 += line.value;
+        }
+      } else {
+        selectableLines.push(i);
+      }
+    }
+
+    if (!checkSecondCriterion) {
+      if (linesSelected <= 3 && sum >= xOneInputValue) {
+        criteriaMet = true;
+      }
+    } else {
+      if (linesSelected === 3) {
+        if (sum >= xOneInputValue && sum2 >= xTwoInputValue) {
+          criteriaMet = true;
+        }
+      } else {
+        for (const index of selectableLines) {
+          const line = currentLines[index];
+
+          if (
+            line.type === typeTwoInputValue ||
+            (line.type === "AS" && acceptAS2)
+          ) {
+            sum2 += line.value;
+            linesSelected += 1;
+            if (
+              line.type === typeOneInputValue ||
+              (line.type === "AS" && acceptAS1)
+            ) {
+              sum += line.value;
+            }
+          }
+
+          if (linesSelected >= 3) break;
+        }
+
+        if (sum >= xOneInputValue && sum2 >= xTwoInputValue) {
+          criteriaMet = true;
+        }
+      }
+    }
+
+    if (criteriaMet && addedLine.length > 0) {
+      const index = currentLines.findIndex(
+        (line) =>
+          line.value === addedLine[0].value && line.type === addedLine[0].type
+      );
+      currentLines.splice(index, 1);
+    }
+
+    return { criteriaMet, addedLine };
+  };
+
+  const newHexaAndRedCalc = () => {
+    let totalProbability = 0;
+    let redProbability = 0;
+    let currentLines = [];
+    const data = {};
+
+    const line1 = potentialLineFormat(currentLines, "Red", 1);
+
+    for (const l1 of line1) {
+      const addedLine1 = l1.type;
+      currentLines.push(addedLine1);
+      const line2 = potentialLineFormat(currentLines, "Red", 2);
+
+      for (const l2 of line2) {
+        const addedLine2 = l2.type;
+        currentLines.push(addedLine2);
+        const line3 = potentialLineFormat(currentLines, "Red", 3);
+
+        for (const l3 of line3) {
+          totalProbability += hexaFirst3LinesCalc(l1, l2, l3, data);
+        }
+        currentLines.splice(currentLines.indexOf(addedLine2), 1);
+      }
+      currentLines.splice(currentLines.indexOf(addedLine1), 1);
+    }
+
+    redProbability = totalProbability;
+
     for (const [key, value] of Object.entries(data)) {
-      console.log("Key:", key, "Value:", value);
-      totalProbabilityInData += value;
-      count += 1;
-    }
+      const lineComponents = key.split(", ");
+      let lines = lineComponents.map((component) => {
+        let [value, ...typeParts] = component.split(" ");
+        let type = typeParts.join(" ").trim();
+        return { value: parseInt(value), type: type };
+      });
 
-    // Red cube's probability will not be stored in data
-    const redCubeProbability = 1 - totalProbabilityInData;
-
-    setRedProbability(redCubeProbability);
-    setRedCubeNumber(Math.round(1 / redCubeProbability));
-    setHexaProbability(totalHexaProbability);
-    setHexaCubeNumber(Math.round(1 / totalHexaProbability));
-
-    console.log(totalProbabilityInData, count, "unique lines in dictionary.");
-    // console.log("Total probability:", totalHexaProbability);
-    // console.log("Hexa results: 1 in", 1 / totalHexaProbability, "cubes.");
-  };
-
-  const blackProbCalc = (x1, type1, x2, type2) => {
-    let acceptAllStat1 = false;
-    let acceptAllStat2 = false;
-    let totalBlackProbability = 0;
-    // let checkSecondCriterion = false;
-
-    if (
-      type1 === "STR" ||
-      type1 === "DEX" ||
-      type1 === "INT" ||
-      type1 === "LUK"
-    ) {
-      acceptAllStat1 = true;
-    }
-    if (
-      type2 === "STR" ||
-      type2 === "DEX" ||
-      type2 === "INT" ||
-      type2 === "LUK"
-    ) {
-      acceptAllStat2 = true;
-    }
-
-    // if (x2 !== "" && type2 !== "") {
-    //   checkSecondCriterion = true;
-    // } else {
-    //   checkSecondCriterion = false;
-    // }
-
-    for (const line1 of legendLineOptions) {
-      for (const line2 of blackSecondLineOptions) {
-        for (const line3 of blackThirdLineOptions) {
-          if (
-            line1.type === "BOSS" &&
-            line2.type === "BOSS" &&
-            line3.type === "BOSS"
-          )
-            continue;
-
-          let sum = 0;
-          let sum2 = 0;
-
-          const probability =
-            (line1.weight * line2.weight * line3.weight) /
-            (line1.totalWeight * line2.totalWeight * line3.totalWeight);
-
-          if (line1.type === type1 || (line1.type === "AS" && acceptAllStat1)) {
-            sum += line1.value;
-          }
-          if (line2.type === type1 || (line2.type === "AS" && acceptAllStat1)) {
-            sum += line2.value;
-          }
-          if (line3.type === type1 || (line3.type === "AS" && acceptAllStat1)) {
-            sum += line3.value;
-          }
-
-          if (checkSecondCriterion) {
-            if (
-              line1.type === type2 ||
-              (line1.type === "AS" && acceptAllStat2)
-            ) {
-              sum2 += line1.value;
-            }
-            if (
-              line2.type === type2 ||
-              (line2.type === "AS" && acceptAllStat2)
-            ) {
-              sum2 += line2.value;
-            }
-            if (
-              line3.type === type2 ||
-              (line3.type === "AS" && acceptAllStat2)
-            ) {
-              sum2 += line3.value;
-            }
-
-            if (sum >= x1 && sum2 >= x2) {
-              totalBlackProbability += probability;
-            }
-          } else {
-            if (sum >= x1) {
-              totalBlackProbability += probability;
-            }
-          }
-        }
+      for (const line of lines) {
+        currentLines.push(line.type);
       }
-    }
 
-    setBlackProbability(totalBlackProbability);
-    setBlackCubeNumber(Math.round(1 / totalBlackProbability));
-  };
+      const line4 = potentialLineFormat(currentLines, "Red", 2);
 
-  const equalityProbCalc = (x1, type1, x2, type2) => {
-    let acceptAllStat1 = false;
-    let acceptAllStat2 = false;
-    let totalEqualityProbability = 0;
-    // let checkSecondCriterion = false;
-
-    if (
-      type1 === "STR" ||
-      type1 === "DEX" ||
-      type1 === "INT" ||
-      type1 === "LUK"
-    ) {
-      acceptAllStat1 = true;
-    }
-    if (
-      type2 === "STR" ||
-      type2 === "DEX" ||
-      type2 === "INT" ||
-      type2 === "LUK"
-    ) {
-      acceptAllStat2 = true;
-    }
-
-    // if (x2 !== "" && type2 !== "") {
-    //   checkSecondCriterion = true;
-    // } else {
-    //   checkSecondCriterion = false;
-    // }
-
-    for (const line1 of legendLineOptions) {
-      for (const line2 of legendLineOptions) {
-        for (const line3 of legendLineOptions) {
-          if (
-            line1.type === "BOSS" &&
-            line2.type === "BOSS" &&
-            line3.type === "BOSS"
-          )
-            continue;
-
-          let sum = 0;
-          let sum2 = 0;
-
-          const probability =
-            (line1.weight * line2.weight * line3.weight) /
-            (line1.totalWeight * line2.totalWeight * line3.totalWeight);
-
-          if (line1.type === type1 || (line1.type === "AS" && acceptAllStat1)) {
-            sum += line1.value;
-          }
-          if (line2.type === type1 || (line2.type === "AS" && acceptAllStat1)) {
-            sum += line2.value;
-          }
-          if (line3.type === type1 || (line3.type === "AS" && acceptAllStat1)) {
-            sum += line3.value;
-          }
-
-          if (checkSecondCriterion) {
-            if (
-              line1.type === type2 ||
-              (line1.type === "AS" && acceptAllStat2)
-            ) {
-              sum2 += line1.value;
-            }
-            if (
-              line2.type === type2 ||
-              (line2.type === "AS" && acceptAllStat2)
-            ) {
-              sum2 += line2.value;
-            }
-            if (
-              line3.type === type2 ||
-              (line3.type === "AS" && acceptAllStat2)
-            ) {
-              sum2 += line3.value;
-            }
-
-            if (sum >= x1 && sum2 >= x2) {
-              totalEqualityProbability += probability;
-            }
-          } else {
-            if (sum >= x1) {
-              totalEqualityProbability += probability;
-            }
-          }
+      for (const l4 of line4) {
+        const result4 = hexaSingleLineCalc(l4, lines);
+        if (result4.criteriaMet) {
+          totalProbability += (value * l4.weight) / l4.totalWeight;
+          continue;
         }
+        const addedLine4 = l4.type;
+        currentLines.push(addedLine4);
+        const line5 = potentialLineFormat(currentLines, "Red", 3);
+
+        for (const l5 of line5) {
+          const result5 = hexaSingleLineCalc(l5, lines);
+          if (result5.criteriaMet) {
+            totalProbability +=
+              (value * l5.weight * l4.weight) /
+              (l4.totalWeight * l5.totalWeight);
+            continue;
+          }
+
+          const addedLine5 = l5.type;
+          currentLines.push(addedLine5);
+          const line6 = potentialLineFormat(currentLines, "Red", 3);
+
+          for (const l6 of line6) {
+            const result6 = hexaSingleLineCalc(l6, lines);
+            if (result6.criteriaMet) {
+              totalProbability +=
+                (value * l5.weight * l6.weight * l4.weight) /
+                (l5.totalWeight * l6.totalWeight * l4.totalWeight);
+            } else if (result6.addedLine.length > 0) {
+              const addedLine = result6.addedLine[0];
+              const index = lines.findIndex(
+                (line) =>
+                  line.value === addedLine.value && line.type === addedLine.type
+              );
+              lines.splice(index, 1);
+            }
+          }
+
+          if (result5.addedLine.length > 0) {
+            const addedLine = result5.addedLine[0];
+            const index = lines.findIndex(
+              (line) =>
+                line.value === addedLine.value && line.type === addedLine.type
+            );
+            lines.splice(index, 1);
+          }
+          currentLines.splice(currentLines.indexOf(addedLine5), 1);
+        }
+
+        if (result4.addedLine.length > 0) {
+          const addedLine = result4.addedLine[0];
+          const index = lines.findIndex(
+            (line) =>
+              line.value === addedLine.value && line.type === addedLine.type
+          );
+          lines.splice(index, 1);
+        }
+        currentLines.splice(currentLines.indexOf(addedLine4), 1);
       }
+      currentLines = [];
     }
 
-    setEqualityProbability(totalEqualityProbability);
-    setEqualityCubeNumber(Math.round(1 / totalEqualityProbability));
+    setRedProbability(redProbability);
+    setRedCubeNumber((1 / redProbability).toFixed(CUBE_DECIMAL));
+    setHexaProbability(totalProbability);
+    setHexaCubeNumber((1 / totalProbability).toFixed(CUBE_DECIMAL));
   };
 
-  const calcAllCubeProbabilities = (x1, type1, x2, type2) => {
-    blackProbCalc(x1, type1, x2, type2);
-    hexaAndRedProbCalc(x1, type1, x2, type2);
-    equalityProbCalc(x1, type1, x2, type2);
+  const newEqualityCalc = () => {
+    let totalProbability = 0;
+    const currentLines = [];
+    const line1 = potentialLineFormat(currentLines, "Black", 1);
+
+    for (const l1 of line1) {
+      const addedLine1 = l1.type;
+      currentLines.push(addedLine1);
+
+      const line2 = potentialLineFormat(currentLines, "Black", 1);
+      for (const l2 of line2) {
+        const addedLine2 = l2.type;
+        currentLines.push(addedLine2);
+        const line3 = potentialLineFormat(currentLines, "Black", 1);
+        for (const l3 of line3) {
+          totalProbability += cubeProbabiltyCalc(l1, l2, l3);
+        }
+        currentLines.splice(currentLines.indexOf(addedLine2), 1);
+      }
+      currentLines.splice(currentLines.indexOf(addedLine1), 1);
+    }
+
+    setEqualityProbability(totalProbability);
+    setEqualityCubeNumber((1 / totalProbability).toFixed(CUBE_DECIMAL));
+  };
+
+  const newBlackCalc = () => {
+    let totalProbability = 0;
+    const currentLines = [];
+    const line1 = potentialLineFormat(currentLines, "Black", 1);
+
+    for (const l1 of line1) {
+      const addedLine1 = l1.type;
+      currentLines.push(addedLine1);
+
+      const line2 = potentialLineFormat(currentLines, "Black", 2);
+      for (const l2 of line2) {
+        const addedLine2 = l2.type;
+        currentLines.push(addedLine2);
+        const line3 = potentialLineFormat(currentLines, "Black", 3);
+        for (const l3 of line3) {
+          totalProbability += cubeProbabiltyCalc(l1, l2, l3);
+        }
+        currentLines.splice(currentLines.indexOf(addedLine2), 1);
+      }
+      currentLines.splice(currentLines.indexOf(addedLine1), 1);
+    }
+
+    setBlackProbability(totalProbability);
+    setBlackCubeNumber((1 / totalProbability).toFixed(CUBE_DECIMAL));
+  };
+
+  const newProbCalc = () => {
+    newHexaAndRedCalc();
+    newEqualityCalc();
+    newBlackCalc();
   };
 
   //============================================================= END ===============================================================
@@ -1174,7 +1274,6 @@ export default function PotentialTable() {
 
   function addIfMoreThanStat(x1, type1, x2, type2) {
     let rowId = 0;
-
     lineOptions.forEach((line1, i) => {
       subLineOptions.forEach((line2, j) => {
         subLineOptions.forEach((line3, k) => {
@@ -1230,6 +1329,16 @@ export default function PotentialTable() {
 
   useEffect(() => {
     updateTypeOptionsTwo();
+    if (
+      typeOneInputValue === "STR" ||
+      typeOneInputValue === "DEX" ||
+      typeOneInputValue === "INT" ||
+      typeOneInputValue === "LUK"
+    ) {
+      setAcceptAS1(true);
+    } else {
+      setAcceptAS1(false);
+    }
   }, [typeOneInputValue, xOneInputValue]);
 
   useEffect(() => {
@@ -1277,10 +1386,85 @@ export default function PotentialTable() {
   useEffect(() => {
     if (xTwoInputValue > 0 && typeTwoInputValue !== "") {
       setCheckSecondCombination(true);
+      if (
+        typeTwoInputValue === "STR" ||
+        typeTwoInputValue === "DEX" ||
+        typeTwoInputValue === "INT" ||
+        typeTwoInputValue === "LUK"
+      ) {
+        setAcceptAS2(true);
+      } else {
+        setAcceptAS2(false);
+      }
     } else {
       setCheckSecondCombination(false);
     }
   }, [xTwoInputValue, typeTwoInputValue]);
+
+  useEffect(() => {
+    let legendLines = [];
+    let uniqueLines = [];
+    switch (inputValue) {
+      case "Hat":
+        legendLines = legendHatLines;
+        uniqueLines = uniqueHatLines;
+        break;
+      case "Top":
+      case "Overall":
+        legendLines = legendTopLines;
+        uniqueLines = uniqueTopLines;
+        break;
+      case "Bottom":
+        legendLines = legendBottomLines;
+        uniqueLines = uniquebottomShoeLines;
+        break;
+      case "Shoe":
+        legendLines = legendShoeLines;
+        uniqueLines = uniquebottomShoeLines;
+        break;
+      case "Glove":
+        legendLines = legendGloveLines;
+        uniqueLines = uniqueGloveLines;
+        break;
+      case "Cape":
+      case "Shoulder":
+      case "Belt":
+        legendLines = legendCapeShoulderBeltLines;
+        uniqueLines = uniqueCapeShoulderBeltLines;
+        break;
+      case "Ring":
+      case "Earring":
+      case "Pendant":
+      case "Face":
+      case "Eye":
+        legendLines = legendAccessoryLines;
+        uniqueLines = uniqueAccessoryLines;
+        break;
+      case "Heart":
+        legendLines = legendHeartLines;
+        uniqueLines = uniqueAccessoryLines;
+        break;
+      case "Weapon":
+        legendLines = legendWeaponLines;
+        uniqueLines = uniqueWeaponLines;
+        break;
+      case "Secondary":
+        legendLines = legendSecondaryLines;
+        uniqueLines = uniqueSecondaryLines;
+        break;
+      case "Emblem":
+        legendLines = legendEmblemLines;
+        uniqueLines = uniqueEmblemLines;
+        break;
+      default:
+        legendLines = legendHatLines;
+        uniqueLines = uniqueHatLines;
+        break;
+    }
+
+    setLegendLineOp(legendLines);
+    setUniqueLineOp(uniqueLines);
+  }, [inputValue]);
 
   return (
     <>
@@ -1361,12 +1545,12 @@ export default function PotentialTable() {
               >
                 <Grid item xs={6}>
                   <Paper className={classes.paper}>
-                    At least 3s CDR -&gt; 1 in 45 Equality
+                    At least 3s CDR -&gt; 1 in 44 Equality
                   </Paper>
                 </Grid>
                 <Grid item xs={6}>
                   <Paper className={classes.paper}>
-                    At least 4s CDR -&gt; 1 in 158 Equality
+                    At least 4s CDR -&gt; 1 in 157 Equality
                   </Paper>
                 </Grid>
               </Grid>
@@ -1530,12 +1714,7 @@ export default function PotentialTable() {
                       xTwoInputValue,
                       typeTwoInputValue
                     );
-                    calcAllCubeProbabilities(
-                      xOneInputValue,
-                      typeOneInputValue,
-                      xTwoInputValue,
-                      typeTwoInputValue
-                    );
+                    newProbCalc();
                   }}
                 >
                   Calculate
@@ -1610,23 +1789,24 @@ export default function PotentialTable() {
                         </div>
                       </TableCell>
                       <TableCell align="center">
-                        {(redProbability * 100).toPrecision(5)}&nbsp;%
+                        {(redProbability * 100).toPrecision(DECIMAL_PRECISION)}
+                        &nbsp;%
                       </TableCell>
                       <TableCell align="center">
                         One in{" "}
                         {redCubeNumber !== 0 ? (
-                          <b>{redCubeNumber.toLocaleString()}</b>
+                          <b>{formatNumberWithCommas(redCubeNumber)}</b>
                         ) : (
                           "Infinite"
                         )}{" "}
                         cubes
                       </TableCell>
-                      <TableCell align="center">{`One in ${Math.round(
-                        1 / getTotalRedPercentages()
-                      ).toLocaleString()} red cubes`}</TableCell>
-                      <TableCell align="center">{`${
+                      <TableCell align="center">{`One in ${formatNumberWithCommas(
+                        (1 / getTotalRedPercentages()).toFixed(CUBE_DECIMAL)
+                      )} red cubes`}</TableCell>
+                      <TableCell align="center">{`${(
                         getTotalRedPercentages() * 100
-                      } %`}</TableCell>
+                      ).toPrecision(DECIMAL_PRECISION)} %`}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell align="center">
@@ -1642,23 +1822,26 @@ export default function PotentialTable() {
                         </div>
                       </TableCell>
                       <TableCell align="center">
-                        {(blackProbability * 100).toPrecision(5)}&nbsp;%
+                        {(blackProbability * 100).toPrecision(
+                          DECIMAL_PRECISION
+                        )}
+                        &nbsp;%
                       </TableCell>
                       <TableCell align="center">
                         One in{" "}
                         {blackCubeNumber !== 0 ? (
-                          <b>{blackCubeNumber.toLocaleString()}</b>
+                          <b>{formatNumberWithCommas(blackCubeNumber)}</b>
                         ) : (
                           "Infinite"
                         )}{" "}
                         cubes
                       </TableCell>
-                      <TableCell align="center">{`One in ${Math.round(
-                        1 / getTotalBlackPercentages()
-                      ).toLocaleString()} black cubes`}</TableCell>
-                      <TableCell align="center">{`${
+                      <TableCell align="center">{`One in ${formatNumberWithCommas(
+                        (1 / getTotalBlackPercentages()).toFixed(CUBE_DECIMAL)
+                      )} black cubes`}</TableCell>
+                      <TableCell align="center">{`${(
                         getTotalBlackPercentages() * 100
-                      } %`}</TableCell>
+                      ).toPrecision(DECIMAL_PRECISION)} %`}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell align="center">
@@ -1674,23 +1857,28 @@ export default function PotentialTable() {
                         </div>
                       </TableCell>
                       <TableCell align="center">
-                        {(equalityProbability * 100).toPrecision(5)}&nbsp;%
+                        {(equalityProbability * 100).toPrecision(
+                          DECIMAL_PRECISION
+                        )}
+                        &nbsp;%
                       </TableCell>
                       <TableCell align="center">
                         One in{" "}
                         {equalityCubeNumber !== 0 ? (
-                          <b>{equalityCubeNumber.toLocaleString()}</b>
+                          <b>{formatNumberWithCommas(equalityCubeNumber)}</b>
                         ) : (
                           "Infinite"
                         )}{" "}
                         cubes
                       </TableCell>
-                      <TableCell align="center">{`One in ${Math.round(
-                        1 / getTotalEqualityPercentages()
-                      ).toLocaleString()} equality cubes`}</TableCell>
-                      <TableCell align="center">{`${
+                      <TableCell align="center">{`One in ${formatNumberWithCommas(
+                        (1 / getTotalEqualityPercentages()).toFixed(
+                          CUBE_DECIMAL
+                        )
+                      )} equality cubes`}</TableCell>
+                      <TableCell align="center">{`${(
                         getTotalEqualityPercentages() * 100
-                      } %`}</TableCell>
+                      ).toPrecision(DECIMAL_PRECISION)} %`}</TableCell>
                     </TableRow>
                     <TableRow>
                       <TableCell align="center">
@@ -1706,23 +1894,24 @@ export default function PotentialTable() {
                         </div>
                       </TableCell>
                       <TableCell align="center">
-                        {(hexaProbability * 100).toPrecision(5)}&nbsp;%
+                        {(hexaProbability * 100).toPrecision(DECIMAL_PRECISION)}
+                        &nbsp;%
                       </TableCell>
                       <TableCell align="center">
                         One in{" "}
                         {hexaCubeNumber !== 0 ? (
-                          <b>{hexaCubeNumber.toLocaleString()}</b>
+                          <b>{formatNumberWithCommas(hexaCubeNumber)}</b>
                         ) : (
                           "Infinite"
                         )}{" "}
                         cubes
                       </TableCell>
-                      <TableCell align="center">{`One in ${Math.round(
-                        1 / getTotalHexaPercentages()
-                      ).toLocaleString()} hexa cubes`}</TableCell>
-                      <TableCell align="center">{`${
+                      <TableCell align="center">{`One in ${formatNumberWithCommas(
+                        (1 / getTotalHexaPercentages()).toFixed(CUBE_DECIMAL)
+                      )} hexa cubes`}</TableCell>
+                      <TableCell align="center">{`${(
                         getTotalHexaPercentages() * 100
-                      } %`}</TableCell>
+                      ).toPrecision(DECIMAL_PRECISION)} %`}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
