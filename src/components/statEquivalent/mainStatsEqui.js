@@ -1,4 +1,4 @@
-import { Tab, Tabs, Paper } from "@material-ui/core";
+import { Tab, Tabs, Paper } from "@mui/material";
 import { useState, useEffect } from "react";
 import SimpleInputField from "./simpleInputField";
 import StatsDashboard from "./statsDashboard";

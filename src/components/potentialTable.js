@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
-import useMediaQuery from "@material-ui/core/useMediaQuery";
+import makeStyles from "@mui/styles/makeStyles";
+import withStyles from "@mui/styles/withStyles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import {
   Paper,
   TextField,
@@ -23,13 +24,9 @@ import {
   Switch,
   FormGroup,
   FormControlLabel,
-} from "@material-ui/core";
-import Autocomplete from "@material-ui/lab/Autocomplete";
-import {
-  ExpandMore,
-  HelpOutline,
-  ExpandLess,
-} from "@material-ui/icons";
+} from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
+import { ExpandMore, HelpOutline, ExpandLess } from "@mui/icons-material";
 import {
   hatLines,
   topLines,
@@ -1473,7 +1470,7 @@ export default function PotentialTable() {
                   <Paper className={classes.paper}>
                     24% Crit -&gt; 1 in 1000 Equality v225
                   </Paper>*/}
-                </Grid> 
+                </Grid>
               </Grid>
             </Box>
           ) : inputValue === "Hat" ? (
@@ -1842,7 +1839,6 @@ export default function PotentialTable() {
         </WhiteTextTypography>
         <Typography>
           Contact @pladz on discord for bugs, or Note Pladz in-game MapleSEA
-
         </Typography>
         <Typography align="center">
           <a href="http://tiny.cc/finalfinaldamage" rel="noreferrer">

@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import makeStyles from '@mui/styles/makeStyles';
+import withStyles from '@mui/styles/withStyles';
 import { ResponsivePie } from '@nivo/pie';
 import { ResponsiveFunnel } from '@nivo/funnel'
 import {
@@ -8,7 +9,7 @@ import {
     Grid,
     Button,
     Typography,
-} from "@material-ui/core";
+} from "@mui/material";
 
 export default function PercentageGraphs() {
 

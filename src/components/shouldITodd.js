@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import makeStyles from '@mui/styles/makeStyles';
+import withStyles from '@mui/styles/withStyles';
 import {
   TextField,
   Button,
@@ -15,9 +16,9 @@ import {
   Paper,
   Typography
 
-} from "@material-ui/core";
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import { ExpandMore, Clear, Add, DoubleArrow, HelpOutline } from "@material-ui/icons";
+} from "@mui/material";
+import Autocomplete from '@mui/material/Autocomplete';
+import { ExpandMore, Clear, Add, DoubleArrow, HelpOutline } from "@mui/icons-material";
 import daybreakPendantIcon from './icons/daybreakPendant.png';
 
 import { useHistory } from "react-router-dom";
